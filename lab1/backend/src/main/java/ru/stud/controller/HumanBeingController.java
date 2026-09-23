@@ -1,5 +1,8 @@
 package ru.stud.controller;
 
+import jakarta.validation.Valid;
+import org.springframework.validation.BindingResult;
+import ru.stud.dto.HumanBeingForm;
 import ru.stud.model.HumanBeing;
 import ru.stud.model.Mood;
 import ru.stud.model.WeaponType;
@@ -92,7 +95,7 @@ public class HumanBeingController {
 
         model.addAttribute(
                 "humanBeing",
-                new HumanBeing()
+                new HumanBeingForm()
         );
 
         model.addAttribute(
@@ -124,10 +127,40 @@ public class HumanBeingController {
 
     @PostMapping("/create")
     public String create(
-            @ModelAttribute HumanBeing humanBeing
+            @Valid @ModelAttribute("humanBeing")
+            HumanBeingForm form,
+
+            BindingResult bindingResult,
+
+            Model model
     ) {
 
-        humanBeingService.create(humanBeing);
+        if (bindingResult.hasErrors()) {
+
+            model.addAttribute(
+                    "coordinatesList",
+                    coordinatesService.getAll()
+            );
+
+            model.addAttribute(
+                    "cars",
+                    carService.getAll()
+            );
+
+            model.addAttribute(
+                    "moods",
+                    Mood.values()
+            );
+
+            model.addAttribute(
+                    "weaponTypes",
+                    WeaponType.values()
+            );
+
+            return "create";
+        }
+
+        humanBeingService.create(form);
 
         return "redirect:/humanbeings";
     }
@@ -142,12 +175,36 @@ public class HumanBeingController {
             Model model
     ) {
 
-        HumanBeing humanBeing =
+        HumanBeing hero =
                 humanBeingService.getById(id);
 
-        model.addAttribute("humanBeing", humanBeing);
+        HumanBeingForm form =
+                humanBeingService.toForm(hero);
 
-        model.addAttribute("moods", Mood.values());
+        model.addAttribute(
+                "humanBeing",
+                form
+        );
+
+        model.addAttribute(
+                "heroId",
+                id
+        );
+
+        model.addAttribute(
+                "coordinatesList",
+                coordinatesService.getAll()
+        );
+
+        model.addAttribute(
+                "cars",
+                carService.getAll()
+        );
+
+        model.addAttribute(
+                "moods",
+                Mood.values()
+        );
 
         model.addAttribute(
                 "weaponTypes",
@@ -164,14 +221,49 @@ public class HumanBeingController {
     @PostMapping("/{id}/edit")
     public String update(
             @PathVariable Long id,
-            @ModelAttribute HumanBeing humanBeing
+
+            @Valid @ModelAttribute("humanBeing")
+            HumanBeingForm form,
+
+            BindingResult bindingResult,
+
+            Model model
     ) {
 
-        humanBeingService.update(id, humanBeing);
+        if (bindingResult.hasErrors()) {
+
+            model.addAttribute(
+                    "heroId",
+                    id
+            );
+
+            model.addAttribute(
+                    "coordinatesList",
+                    coordinatesService.getAll()
+            );
+
+            model.addAttribute(
+                    "cars",
+                    carService.getAll()
+            );
+
+            model.addAttribute(
+                    "moods",
+                    Mood.values()
+            );
+
+            model.addAttribute(
+                    "weaponTypes",
+                    WeaponType.values()
+            );
+
+            return "edit";
+        }
+
+        humanBeingService.update(id, form);
 
         return "redirect:/humanbeings";
     }
-
     // ============================
     // 7. УДАЛЕНИЕ ГЕРОЯ
     // ============================

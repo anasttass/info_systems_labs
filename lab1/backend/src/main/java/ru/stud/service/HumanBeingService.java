@@ -1,95 +1,280 @@
 package ru.stud.service;
 
+import ru.stud.dto.HumanBeingForm;
+
+import ru.stud.model.HumanBeing;
+import ru.stud.model.Coordinates;
+import ru.stud.model.Car;
+
+import ru.stud.repository.HumanBeingRepository;
+import ru.stud.repository.CoordinatesRepository;
+import ru.stud.repository.CarRepository;
+
+import ru.stud.exception.ResourceNotFoundException;
+import ru.stud.exception.ObjectDeletionException;
+
+import org.springframework.dao.DataIntegrityViolationException;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.stud.model.HumanBeing;
-import ru.stud.repository.HumanBeingRepository;
 
 import java.util.List;
 
 @Service
 public class HumanBeingService {
 
-    private final HumanBeingRepository repository;
+    private final HumanBeingRepository humanBeingRepository;
 
-    public HumanBeingService(HumanBeingRepository repository) {
-        this.repository = repository;
+    private final CoordinatesRepository coordinatesRepository;
+
+    private final CarRepository carRepository;
+
+
+    public HumanBeingService(
+            HumanBeingRepository humanBeingRepository,
+            CoordinatesRepository coordinatesRepository,
+            CarRepository carRepository
+    ) {
+
+        this.humanBeingRepository = humanBeingRepository;
+
+        this.coordinatesRepository = coordinatesRepository;
+
+        this.carRepository = carRepository;
     }
 
-    // Получение всех героев
+
+    // ==========================================
+    // 1. ПОЛУЧЕНИЕ ВСЕХ ГЕРОЕВ
+    // ==========================================
+
     @Transactional(readOnly = true)
     public List<HumanBeing> getAll() {
-        return repository.findAll();
+
+        return humanBeingRepository.findAll();
     }
 
-    // Получение героев с пагинацией
+
+    // ==========================================
+    // 2. ПОЛУЧЕНИЕ ГЕРОЕВ С ПАГИНАЦИЕЙ
+    // ==========================================
+
     @Transactional(readOnly = true)
     public Page<HumanBeing> getAll(Pageable pageable) {
-        return repository.findAll(pageable);
+
+        return humanBeingRepository.findAll(pageable);
     }
 
-    // Получение героя по ID
+
+    // ==========================================
+    // 3. ПОЛУЧЕНИЕ ГЕРОЯ ПО ID
+    // ==========================================
+
     @Transactional(readOnly = true)
     public HumanBeing getById(Long id) {
 
-        return repository.findById(id)
+        return humanBeingRepository.findById(id)
                 .orElseThrow(() ->
-                        new RuntimeException(
+                        new ResourceNotFoundException(
                                 "Герой с ID " + id + " не найден"
                         )
                 );
     }
 
-    // Создание героя
+
+    // ==========================================
+    // 4. СОЗДАНИЕ ГЕРОЯ
+    // ==========================================
+
     @Transactional
-    public HumanBeing create(HumanBeing humanBeing) {
+    public HumanBeing create(HumanBeingForm form) {
 
-        humanBeing.setId(null);
+        // Создаём новый объект
 
-        return repository.save(humanBeing);
+        HumanBeing hero = new HumanBeing();
+
+        // Заполняем его данными из DTO
+
+        fillHumanBeing(hero, form);
+
+        // Сохраняем в PostgreSQL
+
+        return humanBeingRepository.save(hero);
     }
 
-    // Обновление героя
+
+    // ==========================================
+    // 5. ОБНОВЛЕНИЕ ГЕРОЯ
+    // ==========================================
+
     @Transactional
-    public HumanBeing update(Long id, HumanBeing updated) {
+    public HumanBeing update(
+            Long id,
+            HumanBeingForm form
+    ) {
 
-        HumanBeing existing = getById(id);
+        // Получаем существующего героя
 
-        existing.setName(updated.getName());
+        HumanBeing hero = getById(id);
 
-        existing.setCoordinates(updated.getCoordinates());
+        // Изменяем его атрибуты
 
-        existing.setRealHero(updated.isRealHero());
+        fillHumanBeing(hero, form);
 
-        existing.setHasToothpick(updated.isHasToothpick());
+        // Сохраняем изменения
 
-        existing.setCar(updated.getCar());
+        return humanBeingRepository.save(hero);
+    }
 
-        existing.setMood(updated.getMood());
 
-        existing.setImpactSpeed(updated.getImpactSpeed());
+    // ==========================================
+    // 6. ЗАПОЛНЕНИЕ ENTITY ИЗ DTO
+    // ==========================================
 
-        existing.setSoundtrackName(updated.getSoundtrackName());
+    private void fillHumanBeing(
+            HumanBeing hero,
+            HumanBeingForm form
+    ) {
 
-        existing.setMinutesOfWaiting(
-                updated.getMinutesOfWaiting()
+        // Проверяем и получаем координаты
+
+        Coordinates coordinates =
+                coordinatesRepository.findById(
+                        form.getCoordinatesId()
+                ).orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "Координаты с ID "
+                                        + form.getCoordinatesId()
+                                        + " не найдены"
+                        )
+                );
+
+
+        // Получаем автомобиль, если он выбран
+
+        Car car = null;
+
+        if (form.getCarId() != null) {
+
+            car = carRepository.findById(
+                    form.getCarId()
+            ).orElseThrow(() ->
+                    new ResourceNotFoundException(
+                            "Автомобиль с ID "
+                                    + form.getCarId()
+                                    + " не найден"
+                    )
+            );
+        }
+
+
+        // Заполняем обычные поля
+
+        hero.setName(form.getName());
+
+        hero.setCoordinates(coordinates);
+
+        hero.setRealHero(form.getRealHero());
+
+        hero.setHasToothpick(form.getHasToothpick());
+
+        hero.setCar(car);
+
+        hero.setMood(form.getMood());
+
+        hero.setImpactSpeed(form.getImpactSpeed());
+
+        hero.setSoundtrackName(
+                form.getSoundtrackName()
         );
 
-        existing.setWeaponType(updated.getWeaponType());
+        hero.setMinutesOfWaiting(
+                form.getMinutesOfWaiting()
+        );
 
-        return repository.save(existing);
+        hero.setWeaponType(
+                form.getWeaponType()
+        );
     }
 
-    // Удаление героя
+
+    // ==========================================
+    // 7. ПРЕОБРАЗОВАНИЕ ENTITY В DTO
+    // ==========================================
+
+    @Transactional(readOnly = true)
+    public HumanBeingForm toForm(HumanBeing hero) {
+
+        HumanBeingForm form = new HumanBeingForm();
+
+        form.setName(hero.getName());
+
+        form.setCoordinatesId(
+                hero.getCoordinates().getId()
+        );
+
+        form.setRealHero(hero.isRealHero());
+
+        form.setHasToothpick(
+                hero.isHasToothpick()
+        );
+
+        if (hero.getCar() != null) {
+
+            form.setCarId(
+                    hero.getCar().getId()
+            );
+        }
+
+        form.setMood(hero.getMood());
+
+        form.setImpactSpeed(
+                hero.getImpactSpeed()
+        );
+
+        form.setSoundtrackName(
+                hero.getSoundtrackName()
+        );
+
+        form.setMinutesOfWaiting(
+                hero.getMinutesOfWaiting()
+        );
+
+        form.setWeaponType(
+                hero.getWeaponType()
+        );
+
+        return form;
+    }
+
+
+    // ==========================================
+    // 8. УДАЛЕНИЕ ГЕРОЯ
+    // ==========================================
+
     @Transactional
     public void delete(Long id) {
 
-        HumanBeing humanBeing = getById(id);
+        HumanBeing hero = getById(id);
 
-        repository.delete(humanBeing);
+        try {
 
-        repository.flush();
+            humanBeingRepository.delete(hero);
+
+            // Принудительно выполняем SQL DELETE
+
+            humanBeingRepository.flush();
+
+        } catch (DataIntegrityViolationException e) {
+
+            throw new ObjectDeletionException(
+                    "Невозможно удалить героя с ID "
+                            + id
+                            + ", поскольку с ним связаны другие объекты"
+            );
+        }
     }
 }
