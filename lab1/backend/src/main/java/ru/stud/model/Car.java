@@ -1,4 +1,4 @@
-package ru.stud.entity;
+package ru.stud.model;
 
 import jakarta.persistence.*;
 
@@ -11,7 +11,7 @@ public class Car {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private boolean cool;
 
 }

@@ -1,4 +1,4 @@
-package ru.stud.entity;
+package ru.stud.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.DecimalMax;
