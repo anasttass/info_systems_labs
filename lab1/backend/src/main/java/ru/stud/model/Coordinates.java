@@ -17,4 +17,28 @@ public class Coordinates {
     @Column(nullable = false)
     @DecimalMax(value = "781")
     private Float y;
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Double getX() {
+        return x;
+    }
+
+    public void setX(Double x) {
+        this.x = x;
+    }
+
+    public Float getY() {
+        return y;
+    }
+
+    public void setY(Float y) {
+        this.y = y;
+    }
 }
