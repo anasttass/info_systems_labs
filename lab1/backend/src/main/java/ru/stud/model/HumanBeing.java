@@ -56,4 +56,100 @@ public class HumanBeing {
     public void prePersist(){
         creationDate=LocalDate.now();
     }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public LocalDate getCreationDate() {
+        return creationDate;
+    }
+
+    public Coordinates getCoordinates() {
+        return coordinates;
+    }
+
+    public void setCoordinates(Coordinates coordinates) {
+        this.coordinates = coordinates;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public Car getCar() {
+        return car;
+    }
+
+    public void setCar(Car car) {
+        this.car = car;
+    }
+
+    public float getImpactSpeed() {
+        return impactSpeed;
+    }
+
+    public void setImpactSpeed(float impactSpeed) {
+        this.impactSpeed = impactSpeed;
+    }
+
+    public int getMinutesOfWaiting() {
+        return minutesOfWaiting;
+    }
+
+    public void setCreationDate(LocalDate creationDate) {
+        this.creationDate = creationDate;
+    }
+
+    public void setMinutesOfWaiting(int minutesOfWaiting) {
+        this.minutesOfWaiting = minutesOfWaiting;
+    }
+
+    public Mood getMood() {
+        return mood;
+    }
+
+    public void setMood(Mood mood) {
+        this.mood = mood;
+    }
+
+    public String getSoundtrackName() {
+        return soundtrackName;
+    }
+
+    public void setSoundtrackName(String soundtrackName) {
+        this.soundtrackName = soundtrackName;
+    }
+
+    public WeaponType getWeaponType() {
+        return weaponType;
+    }
+
+    public void setWeaponType(WeaponType weaponType) {
+        this.weaponType = weaponType;
+    }
+
+    public void setHasToothpick(boolean hasToothpick) {
+        this.hasToothpick = hasToothpick;
+    }
+
+    public void setRealHero(boolean realHero) {
+        this.realHero = realHero;
+    }
+
+    public boolean isRealHero() {
+        return realHero;
+    }
+
+    public boolean isHasToothpick() {
+        return hasToothpick;
+    }
 }
