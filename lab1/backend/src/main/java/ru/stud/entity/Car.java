@@ -1,4 +1,4 @@
-package ru.stud.model;
+package ru.stud.entity;
 
 import jakarta.persistence.*;
 

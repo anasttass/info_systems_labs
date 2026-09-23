@@ -1,4 +1,4 @@
 package ru.stud.service;
 
-public class CoordinatesServict {
+public class CoordinatesService {
 }
