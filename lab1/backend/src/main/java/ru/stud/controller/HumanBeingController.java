@@ -90,36 +90,36 @@ public class HumanBeingController {
     // 3. ФОРМА СОЗДАНИЯ ГЕРОЯ
     // ============================
 
-    @GetMapping("/create")
-    public String showCreateForm(Model model) {
-
-        model.addAttribute(
-                "humanBeing",
-                new HumanBeingForm()
-        );
-
-        model.addAttribute(
-                "coordinatesList",
-                coordinatesService.getAll()
-        );
-
-        model.addAttribute(
-                "cars",
-                carService.getAll()
-        );
-
-        model.addAttribute(
-                "moods",
-                Mood.values()
-        );
-
-        model.addAttribute(
-                "weaponTypes",
-                WeaponType.values()
-        );
-
-        return "create";
-    }
+//    @PostMapping("/create")
+//    public String showCreateForm(Model model) {
+//
+//        model.addAttribute(
+//                "humanBeing",
+//                new HumanBeingForm()
+//        );
+//
+//        model.addAttribute(
+//                "coordinatesList",
+//                coordinatesService.getAll()
+//        );
+//
+//        model.addAttribute(
+//                "cars",
+//                carService.getAll()
+//        );
+//
+//        model.addAttribute(
+//                "moods",
+//                Mood.values()
+//        );
+//
+//        model.addAttribute(
+//                "weaponTypes",
+//                WeaponType.values()
+//        );
+//
+//        return "create";
+//    }
 
     // ============================
     // 4. СОЗДАНИЕ ГЕРОЯ
@@ -169,50 +169,50 @@ public class HumanBeingController {
     // 5. ФОРМА РЕДАКТИРОВАНИЯ
     // ============================
 
-    @GetMapping("/{id}/edit")
-    public String showEditForm(
-            @PathVariable Long id,
-            Model model
-    ) {
-
-        HumanBeing hero =
-                humanBeingService.getById(id);
-
-        HumanBeingForm form =
-                humanBeingService.toForm(hero);
-
-        model.addAttribute(
-                "humanBeing",
-                form
-        );
-
-        model.addAttribute(
-                "heroId",
-                id
-        );
-
-        model.addAttribute(
-                "coordinatesList",
-                coordinatesService.getAll()
-        );
-
-        model.addAttribute(
-                "cars",
-                carService.getAll()
-        );
-
-        model.addAttribute(
-                "moods",
-                Mood.values()
-        );
-
-        model.addAttribute(
-                "weaponTypes",
-                WeaponType.values()
-        );
-
-        return "edit";
-    }
+//    @GetMapping("/{id}/edit")
+//    public String showEditForm(
+//            @PathVariable Long id,
+//            Model model
+//    ) {
+//
+//        HumanBeing hero =
+//                humanBeingService.getById(id);
+//
+//        HumanBeingForm form =
+//                humanBeingService.toForm(hero);
+//
+//        model.addAttribute(
+//                "humanBeing",
+//                form
+//        );
+//
+//        model.addAttribute(
+//                "heroId",
+//                id
+//        );
+//
+//        model.addAttribute(
+//                "coordinatesList",
+//                coordinatesService.getAll()
+//        );
+//
+//        model.addAttribute(
+//                "cars",
+//                carService.getAll()
+//        );
+//
+//        model.addAttribute(
+//                "moods",
+//                Mood.values()
+//        );
+//
+//        model.addAttribute(
+//                "weaponTypes",
+//                WeaponType.values()
+//        );
+//
+//        return "edit";
+//    }
 
     // ============================
     // 6. ОБНОВЛЕНИЕ ГЕРОЯ
