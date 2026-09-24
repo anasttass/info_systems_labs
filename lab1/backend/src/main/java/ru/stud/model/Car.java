@@ -28,4 +28,8 @@ public class Car {
     public boolean isCool() {
         return cool;
     }
+
+    public boolean getCool() {
+        return cool;
+    }
 }

@@ -24,7 +24,6 @@ public class CarService {
 
     @Transactional(readOnly = true)
     public Car getById(Long id) {
-
         return repository.findById(id)
                 .orElseThrow(() ->
                         new RuntimeException(
@@ -35,6 +34,39 @@ public class CarService {
 
     @Transactional
     public Car create(Car car) {
+        // ID должен генерироваться БД
+        car.setId(null);
+
         return repository.save(car);
+    }
+
+    @Transactional
+    public Car update(Long id, Car newCar) {
+
+        // Сначала проверяем, существует ли такая машина
+        Car existingCar = repository.findById(id)
+                .orElseThrow(() ->
+                        new RuntimeException(
+                                "Автомобиль с ID " + id + " не найден"
+                        )
+                );
+
+        // Изменяем только разрешённые поля
+        existingCar.setCool(newCar.getCool());
+
+        return repository.save(existingCar);
+    }
+
+    @Transactional
+    public void delete(Long id) {
+
+        Car car = repository.findById(id)
+                .orElseThrow(() ->
+                        new RuntimeException(
+                                "Автомобиль с ID " + id + " не найден"
+                        )
+                );
+
+        repository.delete(car);
     }
 }

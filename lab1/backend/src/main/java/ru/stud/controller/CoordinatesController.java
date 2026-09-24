@@ -1,71 +1,56 @@
 package ru.stud.controller;
 
+import jakarta.validation.Valid;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 import ru.stud.model.Coordinates;
 import ru.stud.service.CoordinatesService;
 
-import jakarta.validation.Valid;
+import java.util.List;
 
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-
-import org.springframework.validation.BindingResult;
-
-import org.springframework.web.bind.annotation.*;
-
-@Controller
+@RestController
 @RequestMapping("/coordinates")
 public class CoordinatesController {
 
     private final CoordinatesService coordinatesService;
 
-    public CoordinatesController(
-            CoordinatesService coordinatesService
-    ) {
+    public CoordinatesController(CoordinatesService coordinatesService) {
         this.coordinatesService = coordinatesService;
     }
 
-    // Список координат
-
+    // Получить все координаты
     @GetMapping
-    public String getAll(Model model) {
-
-        model.addAttribute(
-                "coordinatesList",
-                coordinatesService.getAll()
-        );
-
-        return "coordinates";
+    public List<Coordinates> getAll() {
+        return coordinatesService.getAll();
     }
 
-    // Форма создания координат
-
-    @GetMapping("/create")
-    public String showCreateForm(Model model) {
-
-        model.addAttribute(
-                "coordinates",
-                new Coordinates()
-        );
-
-        return "coordinates-create";
+    // Получить координаты по id
+    @GetMapping("/{id}")
+    public Coordinates getById(@PathVariable Long id) {
+        return coordinatesService.getById(id);
     }
 
-    // Сохранение координат
-
-    @PostMapping("/create")
-    public String create(
-            @Valid @ModelAttribute("coordinates")
-            Coordinates coordinates,
-
-            BindingResult bindingResult
+    // Создать координаты
+    @PostMapping
+    public Coordinates create(
+            @Valid @RequestBody Coordinates coordinates
     ) {
+        return coordinatesService.create(coordinates);
+    }
 
-        if (bindingResult.hasErrors()) {
-            return "coordinates-create";
-        }
+    // Изменить координаты
+    @PutMapping("/{id}")
+    public Coordinates update(
+            @PathVariable Long id,
+            @Valid @RequestBody Coordinates coordinates
+    ) {
+        return coordinatesService.update(id, coordinates);
+    }
 
-        coordinatesService.create(coordinates);
-
-        return "redirect:/coordinates";
+    // Удалить координаты
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        coordinatesService.delete(id);
+        return ResponseEntity.noContent().build();
     }
 }

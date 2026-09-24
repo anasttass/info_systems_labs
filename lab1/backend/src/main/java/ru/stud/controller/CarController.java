@@ -1,18 +1,14 @@
 package ru.stud.controller;
 
+import jakarta.validation.Valid;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 import ru.stud.model.Car;
 import ru.stud.service.CarService;
 
-import jakarta.validation.Valid;
+import java.util.List;
 
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-
-import org.springframework.validation.BindingResult;
-
-import org.springframework.web.bind.annotation.*;
-
-@Controller
+@RestController
 @RequestMapping("/cars")
 public class CarController {
 
@@ -22,46 +18,39 @@ public class CarController {
         this.carService = carService;
     }
 
-    // Список автомобилей
-
+    // Получить все автомобили
     @GetMapping
-    public String getAll(Model model) {
-
-        model.addAttribute(
-                "cars",
-                carService.getAll()
-        );
-
-        return "cars";
+    public List<Car> getAll() {
+        return carService.getAll();
     }
 
-    // Форма создания автомобиля
-
-    @GetMapping("/create")
-    public String showCreateForm(Model model) {
-
-        model.addAttribute(
-                "car",
-                new Car()
-        );
-
-        return "car-create";
+    // Получить автомобиль по id
+    @GetMapping("/{id}")
+    public Car getById(@PathVariable Long id) {
+        return carService.getById(id);
     }
 
-    // Создание автомобиля
-
-    @PostMapping("/create")
-    public String create(
-            @Valid @ModelAttribute("car") Car car,
-            BindingResult bindingResult
+    // Создать автомобиль
+    @PostMapping
+    public Car create(
+            @Valid @RequestBody Car car
     ) {
+        return carService.create(car);
+    }
 
-        if (bindingResult.hasErrors()) {
-            return "car-create";
-        }
+    // Изменить автомобиль
+    @PutMapping("/{id}")
+    public Car update(
+            @PathVariable Long id,
+            @Valid @RequestBody Car car
+    ) {
+        return carService.update(id, car);
+    }
 
-        carService.create(car);
-
-        return "redirect:/cars";
+    // Удалить автомобиль
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        carService.delete(id);
+        return ResponseEntity.noContent().build();
     }
 }

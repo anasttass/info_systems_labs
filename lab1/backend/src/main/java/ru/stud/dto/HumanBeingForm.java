@@ -23,6 +23,7 @@ public class HumanBeingForm {
 
     private Mood mood;
 
+    @NotNull(message = "Укажите скорость")
     @DecimalMax(
             value = "357",
             message = "Скорость не может превышать 357"

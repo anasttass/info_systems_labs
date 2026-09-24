@@ -24,7 +24,6 @@ public class CoordinatesService {
 
     @Transactional(readOnly = true)
     public Coordinates getById(Long id) {
-
         return repository.findById(id)
                 .orElseThrow(() ->
                         new RuntimeException(
@@ -35,6 +34,40 @@ public class CoordinatesService {
 
     @Transactional
     public Coordinates create(Coordinates coordinates) {
+        // ID генерирует PostgreSQL
+        coordinates.setId(null);
+
         return repository.save(coordinates);
+    }
+
+    @Transactional
+    public Coordinates update(Long id, Coordinates newCoordinates) {
+
+        // Находим существующий объект
+        Coordinates existingCoordinates = repository.findById(id)
+                 .orElseThrow(() ->
+                        new RuntimeException(
+                                "Координаты с ID " + id + " не найдены"
+                        )
+                );
+
+        // Изменяем поля существующего объекта
+        existingCoordinates.setX(newCoordinates.getX());
+        existingCoordinates.setY(newCoordinates.getY());
+
+        return repository.save(existingCoordinates);
+    }
+
+    @Transactional
+    public void delete(Long id) {
+
+        Coordinates coordinates = repository.findById(id)
+                .orElseThrow(() ->
+                        new RuntimeException(
+                                "Координаты с ID " + id + " не найдены"
+                        )
+                );
+
+        repository.delete(coordinates);
     }
 }

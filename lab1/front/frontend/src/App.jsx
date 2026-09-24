@@ -6,7 +6,7 @@ import HumanEditPage from "./pages/HumanEditPage";
 
 function App() {
     return (
-        <BrowserRouter>
+        <BrowserRouter basename="/humanbeing">
             <Routes>
                 <Route path="/" element={<HumanPage />} />
                 <Route path="/humans/create" element={<HumanCreatePage />} />

@@ -1,13 +1,14 @@
 package ru.stud.controller;
 
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import ru.stud.model.HumanBeing;
 import ru.stud.service.SpecialOperationsService;
 
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
+import java.util.List;
+import java.util.Map;
 
-import org.springframework.web.bind.annotation.*;
-
-@Controller
+@RestController
 @RequestMapping("/special")
 public class SpecialOperationsController {
 
@@ -19,72 +20,37 @@ public class SpecialOperationsController {
         this.service = service;
     }
 
-    // Главная страница специальных операций
-
-    @GetMapping
-    public String showSpecialPage() {
-        return "special";
-    }
-
     // 1. Группировка по soundtrackName
-
     @GetMapping("/group-by-soundtrack")
-    public String groupBySoundtrack(Model model) {
-
-        model.addAttribute(
-                "result",
-                service.groupBySoundtrack()
-        );
-
-        return "special";
+    public Map<String, Long> groupBySoundtrack() {
+        return service.groupBySoundtrack();
     }
 
     // 2. Поиск по подстроке имени
-
     @GetMapping("/search-by-name")
-    public String searchByName(
-            @RequestParam String substring,
-            Model model
+    public List<HumanBeing> searchByName(
+            @RequestParam String substring
     ) {
-
-        model.addAttribute(
-                "result",
-                service.searchByName(substring)
-        );
-
-        return "special";
+        return service.searchByName(substring);
     }
 
     // 3. Уникальные minutesOfWaiting
-
     @GetMapping("/unique-waiting")
-    public String uniqueWaiting(Model model) {
-
-        model.addAttribute(
-                "result",
-                service.getUniqueWaitingMinutes()
-        );
-
-        return "special";
+    public List<Integer> uniqueWaiting() {
+        return service.getUniqueWaitingMinutes();
     }
 
-    // 4. Удалить героев без зубочисток
-
+    // 4. Удалить без зубочисток
     @PostMapping("/delete-without-toothpick")
-    public String deleteWithoutToothpick() {
-
+    public ResponseEntity<Void> deleteWithoutToothpick() {
         service.deleteWithoutToothpick();
-
-        return "redirect:/humanbeings";
+        return ResponseEntity.noContent().build();
     }
 
-    // 5. Установить максимально печальное настроение
-
+    // 5. Всем SADNESS
     @PostMapping("/set-sadness")
-    public String setSadness() {
-
+    public ResponseEntity<Void> setSadness() {
         service.setSadnessForAll();
-
-        return "redirect:/humanbeings";
+        return ResponseEntity.noContent().build();
     }
 }

@@ -8,92 +8,131 @@ import {
 
 import { useState } from "react";
 
-function SpecialOperations({ onResult }) {
+function SpecialOperations({ onResult, onDataChanged }) {
     const [searchValue, setSearchValue] = useState("");
+    const [loading, setLoading] = useState(false);
 
     async function handleDeleteWithoutToothpick() {
         try {
+            setLoading(true);
+
             await deleteWithoutToothpick();
 
             onResult({
                 type: "message",
                 data: "Люди без зубочистки удалены"
             });
+
+            // Перечитываем таблицу из PostgreSQL
+            await onDataChanged?.();
+
         } catch (error) {
             onResult({
                 type: "error",
                 data: error.message
             });
+        } finally {
+            setLoading(false);
         }
     }
 
     async function handleMakeEveryoneSad() {
         try {
+            setLoading(true);
+
             await makeEveryoneSad();
 
             onResult({
                 type: "message",
                 data: "Всем людям установлено настроение SADNESS"
             });
+
+            // Перечитываем таблицу из PostgreSQL
+            await onDataChanged?.();
+
         } catch (error) {
             onResult({
                 type: "error",
                 data: error.message
             });
+        } finally {
+            setLoading(false);
         }
     }
 
     async function handleGroupBySoundtrack() {
         try {
+            setLoading(true);
+
             const result = await groupBySoundtrack();
 
             onResult({
                 type: "groupBySoundtrack",
                 data: result
             });
+
         } catch (error) {
             onResult({
                 type: "error",
                 data: error.message
             });
+        } finally {
+            setLoading(false);
         }
     }
 
     async function handleSearchByName(event) {
         event.preventDefault();
 
-        if (!searchValue.trim()) {
+        const value = searchValue.trim();
+
+        if (!value) {
+            onResult({
+                type: "error",
+                data: "Введите подстроку для поиска"
+            });
+
             return;
         }
 
         try {
-            const result = await searchByName(searchValue);
+            setLoading(true);
+
+            const result = await searchByName(value);
 
             onResult({
                 type: "searchByName",
                 data: result
             });
+
         } catch (error) {
             onResult({
                 type: "error",
                 data: error.message
             });
+        } finally {
+            setLoading(false);
         }
     }
 
     async function handleUniqueWaiting() {
         try {
+            setLoading(true);
+
             const result = await getUniqueWaiting();
 
             onResult({
                 type: "uniqueWaiting",
                 data: result
             });
+
         } catch (error) {
             onResult({
                 type: "error",
                 data: error.message
             });
+        } finally {
+            setLoading(false);
         }
     }
 
@@ -101,34 +140,30 @@ function SpecialOperations({ onResult }) {
         <div>
             <h3>Специальные операции</h3>
 
-            {/* Удалить людей без зубочистки */}
             <button
                 type="button"
                 onClick={handleDeleteWithoutToothpick}
+                disabled={loading}
             >
                 Удалить без зубочистки
             </button>
 
-
-            {/* Сделать всех максимально грустными */}
             <button
                 type="button"
                 onClick={handleMakeEveryoneSad}
+                disabled={loading}
             >
                 Сделать всех грустными
             </button>
 
-
-            {/* Группировка по soundtrackName */}
             <button
                 type="button"
                 onClick={handleGroupBySoundtrack}
+                disabled={loading}
             >
                 Группировка по soundtrack
             </button>
 
-
-            {/* Поиск по имени */}
             <form onSubmit={handleSearchByName}>
                 <input
                     type="text"
@@ -137,21 +172,26 @@ function SpecialOperations({ onResult }) {
                         setSearchValue(event.target.value)
                     }
                     placeholder="Имя или часть имени"
+                    disabled={loading}
                 />
 
-                <button type="submit">
+                <button
+                    type="submit"
+                    disabled={loading}
+                >
                     Найти по имени
                 </button>
             </form>
 
-
-            {/* Уникальные minutesOfWaiting */}
             <button
                 type="button"
                 onClick={handleUniqueWaiting}
+                disabled={loading}
             >
                 Уникальные минуты ожидания
             </button>
+
+            {loading && <span> Выполнение...</span>}
         </div>
     );
 }

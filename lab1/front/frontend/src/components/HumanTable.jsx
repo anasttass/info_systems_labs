@@ -1,33 +1,42 @@
-import HumanRow from "./HumanRow"
+import HumanRow from "./HumanRow";
 
-
-function HumanTable({humans}){
+function HumanTable({ humans = [], onDataChanged }) {
     return (
         <table>
             <thead>
-                <tr>
-                    <td>Id</td>
-                    <td>Name</td>
-                    <td>Coordinates</td>
-                    <td>CreationDate</td>
-                    <td>RealHero</td>
-                    <td>HasToothpick</td>
-                    <td>Car</td>
-                    <td>Mood</td>
-                    <td>ImpactSpeed</td>
-                    <td>SoundtrackName</td>
-                    <td>MinutesOfWaiting</td>
-                    <td>WaponType</td>
-                </tr>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Coordinates</th>
+                <th>Creation Date</th>
+                <th>Real Hero</th>
+                <th>Has Toothpick</th>
+                <th>Car</th>
+                <th>Mood</th>
+                <th>Impact Speed</th>
+                <th>Soundtrack Name</th>
+                <th>Minutes Of Waiting</th>
+                <th>Weapon Type</th>
+                <th>Actions</th>
+            </tr>
             </thead>
 
             <tbody>
-                {humans.map(human => (
-                    <HumanRow 
+            {humans.length === 0 ? (
+                <tr>
+                    <td colSpan="13">
+                        Нет данных
+                    </td>
+                </tr>
+            ) : (
+                humans.map((human) => (
+                    <HumanRow
                         key={human.id}
                         human={human}
+                        onDeleted={onDataChanged}
                     />
-                ))}
+                ))
+            )}
             </tbody>
         </table>
     );

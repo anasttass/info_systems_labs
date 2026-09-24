@@ -1,4 +1,6 @@
-const API_URL = "http://helios.cs.ifmo.ru:8080";
+const CONTEXT_PATH = "/humanbeing";
+
+const API_URL = `${window.location.origin}${CONTEXT_PATH}`;
 
 const HUMAN_API_URL = `${API_URL}/humanbeings`;
 const CAR_API_URL = `${API_URL}/cars`;
@@ -7,78 +9,147 @@ const SPECIAL_API_URL = `${API_URL}/special`;
 
 
 // ============================================================
+// ВСПОМОГАТЕЛЬНАЯ ОБРАБОТКА ОШИБОК
+// ============================================================
+
+async function checkResponse(response, defaultMessage) {
+    if (response.ok) {
+        return;
+    }
+
+    let message = defaultMessage;
+
+    try {
+        const data = await response.json();
+
+        if (data.message) {
+            message = data.message;
+        } else if (data.error) {
+            message = `${defaultMessage}: ${data.error}`;
+        }
+    } catch {
+        // Backend мог вернуть пустой ответ или не JSON.
+    }
+
+    throw new Error(message);
+}
+
+
+// ============================================================
 // HUMAN BEING
 // ============================================================
 
-// Получить всех
-export async function getHumans() {
-    const response = await fetch(HUMAN_API_URL);
+// Получить страницу людей
+export async function getHumans(
+    page = 0,
+    size = 10,
+    sortBy = "id",
+    direction = "asc",
+    filters = {}
+) {
+    const params = new URLSearchParams();
 
-    if (!response.ok) {
-        throw new Error("Не удалось получить людей");
-    }
+    params.set("page", page);
+    params.set("size", size);
+    params.set("sortBy", sortBy);
+    params.set("direction", direction);
+
+    Object.entries(filters).forEach(([key, value]) => {
+        if (
+            value !== undefined &&
+            value !== null &&
+            value !== ""
+        ) {
+            params.set(key, value);
+        }
+    });
+
+    const response = await fetch(
+        `${HUMAN_API_URL}?${params.toString()}`
+    );
+
+    await checkResponse(
+        response,
+        "Не удалось получить людей"
+    );
 
     return response.json();
 }
 
 
-// Получить одного
+// Получить одного человека по ID
 export async function getHuman(id) {
-    const response = await fetch(`${HUMAN_API_URL}/${id}`);
+    const response = await fetch(
+        `${HUMAN_API_URL}/${id}`
+    );
 
-    if (!response.ok) {
-        throw new Error("Не удалось получить человека");
-    }
+    await checkResponse(
+        response,
+        `Не удалось получить человека с ID ${id}`
+    );
 
     return response.json();
 }
 
 
-// Создать
+// Создать человека
 export async function createHuman(human) {
-    const response = await fetch(`${HUMAN_API_URL}/create`, {
+    const response = await fetch(HUMAN_API_URL, {
         method: "POST",
+
         headers: {
             "Content-Type": "application/json"
         },
+
         body: JSON.stringify(human)
     });
 
-    if (!response.ok) {
-        throw new Error("Не удалось создать человека");
-    }
+    await checkResponse(
+        response,
+        "Не удалось создать человека"
+    );
 
     return response.json();
 }
 
 
-// Обновить
+// Обновить человека
 export async function updateHuman(id, human) {
-    const response = await fetch(`${HUMAN_API_URL}/${id}/edit`, {
-        method: "PUT",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify(human)
-    });
+    const response = await fetch(
+        `${HUMAN_API_URL}/${id}`,
+        {
+            method: "PUT",
 
-    if (!response.ok) {
-        throw new Error("Не удалось обновить человека");
-    }
+            headers: {
+                "Content-Type": "application/json"
+            },
+
+            body: JSON.stringify(human)
+        }
+    );
+
+    await checkResponse(
+        response,
+        `Не удалось обновить человека с ID ${id}`
+    );
 
     return response.json();
 }
 
 
-// Удалить
+// Удалить человека
 export async function deleteHuman(id) {
-    const response = await fetch(`${HUMAN_API_URL}/${id}/delete`, {
-        method: "DELETE"
-    });
+    const response = await fetch(
+        `${HUMAN_API_URL}/${id}`,
+        {
+            method: "DELETE"
+        }
+    );
 
-    if (!response.ok) {
-        throw new Error("Не удалось удалить человека");
-    }
+    await checkResponse(
+        response,
+        `Не удалось удалить человека с ID ${id}`
+    );
 }
 
 
@@ -86,75 +157,92 @@ export async function deleteHuman(id) {
 // CAR
 // ============================================================
 
-// Получить все машины
+// Получить все автомобили
 export async function getCars() {
     const response = await fetch(CAR_API_URL);
 
-    if (!response.ok) {
-        throw new Error("Не удалось получить автомобили");
-    }
+    await checkResponse(
+        response,
+        "Не удалось получить автомобили"
+    );
 
     return response.json();
 }
 
 
-// Получить одну машину
+// Получить автомобиль по ID
 export async function getCar(id) {
-    const response = await fetch(`${CAR_API_URL}/${id}`);
+    const response = await fetch(
+        `${CAR_API_URL}/${id}`
+    );
 
-    if (!response.ok) {
-        throw new Error("Не удалось получить автомобиль");
-    }
+    await checkResponse(
+        response,
+        `Не удалось получить автомобиль с ID ${id}`
+    );
 
     return response.json();
 }
 
 
-// Создать машину
+// Создать автомобиль
 export async function createCar(car) {
-    const response = await fetch(`${CAR_API_URL}/create`, {
+    const response = await fetch(CAR_API_URL, {
         method: "POST",
+
         headers: {
             "Content-Type": "application/json"
         },
+
         body: JSON.stringify(car)
     });
 
-    if (!response.ok) {
-        throw new Error("Не удалось создать автомобиль");
-    }
+    await checkResponse(
+        response,
+        "Не удалось создать автомобиль"
+    );
 
     return response.json();
 }
 
 
-// Обновить машину
+// Обновить автомобиль
 export async function updateCar(id, car) {
-    const response = await fetch(`${CAR_API_URL}/${id}/edit`, {
-        method: "PUT",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify(car)
-    });
+    const response = await fetch(
+        `${CAR_API_URL}/${id}`,
+        {
+            method: "PUT",
 
-    if (!response.ok) {
-        throw new Error("Не удалось обновить автомобиль");
-    }
+            headers: {
+                "Content-Type": "application/json"
+            },
+
+            body: JSON.stringify(car)
+        }
+    );
+
+    await checkResponse(
+        response,
+        `Не удалось обновить автомобиль с ID ${id}`
+    );
 
     return response.json();
 }
 
 
-// Удалить машину
+// Удалить автомобиль
 export async function deleteCar(id) {
-    const response = await fetch(`${CAR_API_URL}/${id}/delete`, {
-        method: "DELETE"
-    });
+    const response = await fetch(
+        `${CAR_API_URL}/${id}`,
+        {
+            method: "DELETE"
+        }
+    );
 
-    if (!response.ok) {
-        throw new Error("Не удалось удалить автомобиль");
-    }
+    await checkResponse(
+        response,
+        `Не удалось удалить автомобиль с ID ${id}`
+    );
 }
 
 
@@ -164,23 +252,29 @@ export async function deleteCar(id) {
 
 // Получить все координаты
 export async function getCoordinates() {
-    const response = await fetch(COORDINATES_API_URL);
+    const response = await fetch(
+        COORDINATES_API_URL
+    );
 
-    if (!response.ok) {
-        throw new Error("Не удалось получить координаты");
-    }
+    await checkResponse(
+        response,
+        "Не удалось получить координаты"
+    );
 
     return response.json();
 }
 
 
-// Получить одни координаты
+// Получить координаты по ID
 export async function getCoordinate(id) {
-    const response = await fetch(`${COORDINATES_API_URL}/${id}`);
+    const response = await fetch(
+        `${COORDINATES_API_URL}/${id}`
+    );
 
-    if (!response.ok) {
-        throw new Error("Не удалось получить координаты");
-    }
+    await checkResponse(
+        response,
+        `Не удалось получить координаты с ID ${id}`
+    );
 
     return response.json();
 }
@@ -188,17 +282,23 @@ export async function getCoordinate(id) {
 
 // Создать координаты
 export async function createCoordinates(coordinates) {
-    const response = await fetch(`${COORDINATES_API_URL}/create`, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify(coordinates)
-    });
+    const response = await fetch(
+        COORDINATES_API_URL,
+        {
+            method: "POST",
 
-    if (!response.ok) {
-        throw new Error("Не удалось создать координаты");
-    }
+            headers: {
+                "Content-Type": "application/json"
+            },
+
+            body: JSON.stringify(coordinates)
+        }
+    );
+
+    await checkResponse(
+        response,
+        "Не удалось создать координаты"
+    );
 
     return response.json();
 }
@@ -206,17 +306,23 @@ export async function createCoordinates(coordinates) {
 
 // Обновить координаты
 export async function updateCoordinates(id, coordinates) {
-    const response = await fetch(`${COORDINATES_API_URL}/${id}/edit`, {
-        method: "PUT",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify(coordinates)
-    });
+    const response = await fetch(
+        `${COORDINATES_API_URL}/${id}`,
+        {
+            method: "PUT",
 
-    if (!response.ok) {
-        throw new Error("Не удалось обновить координаты");
-    }
+            headers: {
+                "Content-Type": "application/json"
+            },
+
+            body: JSON.stringify(coordinates)
+        }
+    );
+
+    await checkResponse(
+        response,
+        `Не удалось обновить координаты с ID ${id}`
+    );
 
     return response.json();
 }
@@ -224,13 +330,17 @@ export async function updateCoordinates(id, coordinates) {
 
 // Удалить координаты
 export async function deleteCoordinates(id) {
-    const response = await fetch(`${COORDINATES_API_URL}/${id}/delete`, {
-        method: "DELETE"
-    });
+    const response = await fetch(
+        `${COORDINATES_API_URL}/${id}`,
+        {
+            method: "DELETE"
+        }
+    );
 
-    if (!response.ok) {
-        throw new Error("Не удалось удалить координаты");
-    }
+    await checkResponse(
+        response,
+        `Не удалось удалить координаты с ID ${id}`
+    );
 }
 
 
@@ -238,73 +348,78 @@ export async function deleteCoordinates(id) {
 // SPECIAL OPERATIONS
 // ============================================================
 
-// Удалить всех людей без зубочистки
-export async function deleteWithoutToothpick() {
-    const response = await fetch(
-        `${SPECIAL_API_URL}/delete-without-toothpick`,
-        {
-            method: "DELETE"
-        }
-    );
-
-    if (!response.ok) {
-        throw new Error("Не удалось удалить людей без зубочистки");
-    }
-}
-
-
-// Установить всем людям максимально грустное настроение
-export async function makeEveryoneSad() {
-    const response = await fetch(
-        `${SPECIAL_API_URL}/set-sadness`,
-        {
-            method: "PATCH"
-        }
-    );
-
-    if (!response.ok) {
-        throw new Error("Не удалось изменить настроение");
-    }
-}
-
-
-// Группировка по soundtrackName с подсчётом количества
+// 1. Группировка по soundtrackName
 export async function groupBySoundtrack() {
     const response = await fetch(
         `${SPECIAL_API_URL}/group-by-soundtrack`
     );
 
-    if (!response.ok) {
-        throw new Error("Не удалось выполнить группировку");
-    }
+    await checkResponse(
+        response,
+        "Не удалось выполнить группировку по soundtrackName"
+    );
 
     return response.json();
 }
 
 
-// Найти людей, имя которых содержит подстроку
+// 2. Найти людей, имя которых содержит подстроку
 export async function searchByName(substring) {
     const response = await fetch(
         `${SPECIAL_API_URL}/search-by-name?substring=${encodeURIComponent(substring)}`
     );
 
-    if (!response.ok) {
-        throw new Error("Не удалось выполнить поиск по имени");
-    }
+    await checkResponse(
+        response,
+        "Не удалось выполнить поиск по имени"
+    );
 
     return response.json();
 }
 
 
-// Получить уникальные значения minutesOfWaiting
+// 3. Получить уникальные minutesOfWaiting
 export async function getUniqueWaiting() {
     const response = await fetch(
         `${SPECIAL_API_URL}/unique-waiting`
     );
 
-    if (!response.ok) {
-        throw new Error("Не удалось получить уникальные значения времени ожидания");
-    }
+    await checkResponse(
+        response,
+        "Не удалось получить уникальные значения minutesOfWaiting"
+    );
 
     return response.json();
+}
+
+
+// 4. Удалить всех людей без зубочистки
+export async function deleteWithoutToothpick() {
+    const response = await fetch(
+        `${SPECIAL_API_URL}/delete-without-toothpick`,
+        {
+            method: "POST"
+        }
+    );
+
+    await checkResponse(
+        response,
+        "Не удалось удалить людей без зубочистки"
+    );
+}
+
+
+// 5. Установить всем людям максимально грустное настроение
+export async function makeEveryoneSad() {
+    const response = await fetch(
+        `${SPECIAL_API_URL}/set-sadness`,
+        {
+            method: "POST"
+        }
+    );
+
+    await checkResponse(
+        response,
+        "Не удалось изменить настроение"
+    );
 }

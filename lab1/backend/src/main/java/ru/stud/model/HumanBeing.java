@@ -29,10 +29,10 @@ public class HumanBeing {
     private boolean hasToothpick;
 
     @OneToOne
-    @JoinColumn(name = "car_id", nullable = false)
+    @JoinColumn(name = "car_id", nullable = true)
     private Car car;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     @Enumerated(EnumType.STRING)
     private Mood mood;
 
