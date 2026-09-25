@@ -435,3 +435,33 @@ export async function makeEveryoneSad() {
         "Не удалось изменить настроение"
     );
 }
+
+export async function getAvailableCars(){
+    const response = await fetch(
+        `${CAR_API_URL}/available`
+    );
+
+    await checkResponse(
+        response,
+        "Не удалось получить свободные автомобили"
+    );
+
+    return response.json();
+}
+
+export async function getCarsPage(
+    page = 0,
+    size = 5
+) {
+    const response = await fetch(
+        `${CAR_API_URL}/page?page=${page}&size=${size}`
+    );
+
+    if (!response.ok) {
+        throw new Error(
+            "Не удалось получить страницу автомобилей"
+        );
+    }
+
+    return response.json();
+}

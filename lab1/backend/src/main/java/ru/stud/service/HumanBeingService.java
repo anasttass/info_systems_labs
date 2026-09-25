@@ -98,7 +98,7 @@ public class HumanBeingService {
 
         // Заполняем его данными из DTO
 
-        fillHumanBeing(hero, form);
+        fillHumanBeing(hero, form, null);
 
         // Сохраняем в PostgreSQL
 
@@ -122,7 +122,7 @@ public class HumanBeingService {
 
         // Изменяем его атрибуты
 
-        fillHumanBeing(hero, form);
+        fillHumanBeing(hero, form, null);
 
         // Сохраняем изменения
 
@@ -136,10 +136,9 @@ public class HumanBeingService {
 
     private void fillHumanBeing(
             HumanBeing hero,
-            HumanBeingForm form
+            HumanBeingForm form,
+            Long currentHumanId
     ) {
-
-        // Проверяем и получаем координаты
 
         Coordinates coordinates =
                 coordinatesRepository.findById(
@@ -151,9 +150,6 @@ public class HumanBeingService {
                                         + " не найдены"
                         )
                 );
-
-
-        // Получаем автомобиль, если он выбран
 
         Car car = null;
 
@@ -168,36 +164,44 @@ public class HumanBeingService {
                                     + " не найден"
                     )
             );
+
+            boolean carAlreadyUsed;
+
+            if (currentHumanId == null) {
+                // Создание нового HumanBeing
+                carAlreadyUsed =
+                        humanBeingRepository.existsByCarId(
+                                form.getCarId()
+                        );
+            } else {
+                // Редактирование.
+                // Своя текущая машина разрешена.
+                carAlreadyUsed =
+                        humanBeingRepository.existsByCarIdAndIdNot(
+                                form.getCarId(),
+                                currentHumanId
+                        );
+            }
+
+            if (carAlreadyUsed) {
+                throw new IllegalStateException(
+                        "Автомобиль с ID "
+                                + form.getCarId()
+                                + " уже принадлежит другому HumanBeing"
+                );
+            }
         }
 
-
-        // Заполняем обычные поля
-
         hero.setName(form.getName());
-
         hero.setCoordinates(coordinates);
-
         hero.setRealHero(form.getRealHero());
-
         hero.setHasToothpick(form.getHasToothpick());
-
         hero.setCar(car);
-
         hero.setMood(form.getMood());
-
         hero.setImpactSpeed(form.getImpactSpeed());
-
-        hero.setSoundtrackName(
-                form.getSoundtrackName()
-        );
-
-        hero.setMinutesOfWaiting(
-                form.getMinutesOfWaiting()
-        );
-
-        hero.setWeaponType(
-                form.getWeaponType()
-        );
+        hero.setSoundtrackName(form.getSoundtrackName());
+        hero.setMinutesOfWaiting(form.getMinutesOfWaiting());
+        hero.setWeaponType(form.getWeaponType());
     }
 
 

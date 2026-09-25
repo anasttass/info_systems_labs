@@ -68,89 +68,83 @@ async function handleMakeEveryoneSad() {
     }
 }
 
-async function handleGroupBySoundtrack() {
-    try {
-        setLoading(true);
+    async function handleGroupBySoundtrack() {
+        try {
+            setLoading(true);
 
-        const result =
-            await groupBySoundtrack();
+            const result = await groupBySoundtrack();
 
-        onResult({
-            type: "group",
-            data: result
-        });
-    } catch (error) {
-        onResult({
-            type: "error",
-            data:
-                error.message ||
-                "Не удалось выполнить группировку по soundtrackName."
-        });
-    } finally {
-        setLoading(false);
+            onResult({
+                type: "groupBySoundtrack",
+                data: result
+            });
+        } catch (error) {
+            onResult({
+                type: "error",
+                data:
+                    error.message ||
+                    "Не удалось выполнить группировку по soundtrackName."
+            });
+        } finally {
+            setLoading(false);
+        }
     }
-}
+    async function handleSearchByName(event) {
+        event.preventDefault();
 
-async function handleSearchByName(event) {
-    event.preventDefault();
+        const value = searchValue.trim();
 
-    const value =
-        searchValue.trim();
+        if (!value) {
+            onResult({
+                type: "error",
+                data: "Введите подстроку для поиска."
+            });
 
-    if (!value) {
-        onResult({
-            type: "error",
-            data:
-                "Введите подстроку для поиска."
-        });
+            return;
+        }
 
-        return;
+        try {
+            setLoading(true);
+
+            const result = await searchByName(value);
+
+            onResult({
+                type: "searchByName",
+                data: result
+            });
+        } catch (error) {
+            onResult({
+                type: "error",
+                data:
+                    error.message ||
+                    "Не удалось выполнить поиск по имени."
+            });
+        } finally {
+            setLoading(false);
+        }
     }
 
-    try {
-        setLoading(true);
+    async function handleUniqueWaiting() {
+        try {
+            setLoading(true);
 
-        const result =
-            await searchByName(value);
+            const result = await getUniqueWaiting();
 
-        onResult({
-            type: "humans",
-            data: result
-        });
-    } catch (error) {
-        onResult({
-            type: "error",
-            data:
-                error.message ||
-                "Не удалось выполнить поиск по имени."
-        });
-    } finally {
-        setLoading(false);
+            onResult({
+                type: "uniqueWaiting",
+                data: result
+            });
+        } catch (error) {
+            onResult({
+                type: "error",
+                data:
+                    error.message ||
+                    "Не удалось получить уникальные значения minutesOfWaiting."
+            });
+        } finally {
+            setLoading(false);
+        }
     }
-}
-
-async function handleUniqueWaiting() {
-    try {
-        setLoading(true);
-
-        const result =
-            await getUniqueWaiting();
-
-        onResult({
-            type: "waiting",
-            data: result
-        });
-    } catch (error) {
-        onResult({
-            type: "error",
-            data:
-                error.message ||
-                "Не удалось получить уникальные значения minutesOfWaiting."
-        });
-    } finally {
-        setLoading(false);
-    }
-}
 
 return (
     <section className="special-operations">

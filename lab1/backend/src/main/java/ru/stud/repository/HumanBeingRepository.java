@@ -19,7 +19,12 @@ public interface HumanBeingRepository
 
     Optional<HumanBeing> findByCarId(Long carId);
 
-    Boolean existsByCarId(Long CarId);
+    boolean existsByCarId(Long CarId);
+
+    boolean existsByCarIdAndIdNot(
+            Long carId,
+            Long humanBeingId
+    );
 
     @Query("""
             SELECT h FROM HumanBeing h
