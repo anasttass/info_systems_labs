@@ -245,6 +245,18 @@ export async function deleteCar(id) {
     );
 }
 
+export async function getFreeCars() {
+    const response = await fetch(`${CAR_API_URL}/free`);
+
+    await checkResponse(
+        response,
+        "Не удалось получить свободные автомобили"
+    );
+
+    return response.json();
+}
+
+
 
 // ============================================================
 // COORDINATES

@@ -2,9 +2,7 @@ package ru.stud.service;
 
 import ru.stud.dto.HumanBeingForm;
 
-import ru.stud.model.HumanBeing;
-import ru.stud.model.Coordinates;
-import ru.stud.model.Car;
+import ru.stud.model.*;
 
 import ru.stud.repository.HumanBeingRepository;
 import ru.stud.repository.CoordinatesRepository;
@@ -63,9 +61,11 @@ public class HumanBeingService {
     // ==========================================
 
     @Transactional(readOnly = true)
-    public Page<HumanBeing> getAll(Pageable pageable) {
+    public Page<HumanBeing> getAll(Pageable pageable, Boolean realHero, Boolean hasToothpick, Mood mood, WeaponType weaponType) {
 
-        return humanBeingRepository.findAll(pageable);
+//        String normalizedName = name == null || name.isBlank() ? null : name.trim();
+
+        return humanBeingRepository.findAllWithFilters(realHero,hasToothpick,mood,weaponType,pageable);
     }
 
 

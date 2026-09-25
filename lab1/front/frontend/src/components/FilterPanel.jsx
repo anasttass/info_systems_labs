@@ -2,7 +2,7 @@ import { useState } from "react";
 
 function FilterPanel({ onFilterChange }) {
     const [filters, setFilters] = useState({
-        name: "",
+        //name: "",
         realHero: "",
         hasToothpick: "",
         mood: "",
@@ -28,7 +28,7 @@ function FilterPanel({ onFilterChange }) {
 
     function handleReset() {
         const emptyFilters = {
-            name: "",
+            //name: "",
             realHero: "",
             hasToothpick: "",
             mood: "",
@@ -43,19 +43,6 @@ function FilterPanel({ onFilterChange }) {
         <form onSubmit={handleSubmit}>
             <h3>Фильтры</h3>
 
-            {/* Поиск по имени */}
-            <div>
-                <label>
-                    Имя:
-                    <input
-                        type="text"
-                        name="name"
-                        value={filters.name}
-                        onChange={handleChange}
-                        placeholder="Введите имя"
-                    />
-                </label>
-            </div>
 
             {/* Real hero */}
             <div>

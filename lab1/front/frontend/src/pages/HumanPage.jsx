@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 import HumanTable from "../components/HumanTable";
 import Pagination from "../components/Pagination";
@@ -6,187 +7,181 @@ import FilterPanel from "../components/FilterPanel";
 import SortPanel from "../components/SortPanel";
 import SpecialOperations from "../components/SpecialOperations";
 
-
 import { getHumans } from "../web-requests/Requester";
-import {useNavigate} from "react-router-dom";
-
 
 function HumanPage() {
-    const [humans, setHumans] = useState([]);
-    const navigate =useNavigate();
-    // На frontend страницы считаем с 1,
-    // Spring PageRequest считает с 0.
-    const [currentPage, setCurrentPage] = useState(1);
-    const [totalPages, setTotalPages] = useState(0);
+const [humans, setHumans] = useState([]);
+const navigate = useNavigate();
 
-    const [filters, setFilters] = useState({});
 
-    const [sort, setSort] = useState({
-        field: "id",
-        direction: "asc"
-    });
+const [currentPage, setCurrentPage] = useState(1);
+const [totalPages, setTotalPages] = useState(0);
 
-    const [specialResult, setSpecialResult] = useState(null);
+const [filters, setFilters] = useState({});
 
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState(null);
+const [sort, setSort] = useState({
+    field: "id",
+    direction: "asc"
+});
 
-    const pageSize = 10;
+const [specialResult, setSpecialResult] = useState(null);
 
-    // ============================================================
-    // ЗАГРУЗКА ДАННЫХ С BACKEND
-    // ============================================================
+const [loading, setLoading] = useState(false);
+const [error, setError] = useState(null);
 
-    const loadHumans = useCallback(async () => {
-        try {
-            setLoading(true);
-            setError(null);
+const pageSize = 10;
 
-            const data = await getHumans(
-                currentPage - 1,
-                pageSize,
-                sort.field,
-                sort.direction,
-                filters
-            );
+const loadHumans = useCallback(async () => {
+    try {
+        setLoading(true);
+        setError(null);
 
-            setHumans(data.content ?? []);
-            setTotalPages(data.totalPages ?? 0);
+        const data = await getHumans(
+            currentPage - 1,
+            pageSize,
+            sort.field,
+            sort.direction,
+            filters
+        );
 
-        } catch (err) {
-            console.error(err);
+        setHumans(data.content ?? []);
+        setTotalPages(data.totalPages ?? 0);
+    } catch (err) {
+        console.error(err);
 
-            setError(
-                err.message || "Не удалось загрузить данные"
-            );
+        setError(
+            err.message || "Не удалось загрузить данные"
+        );
 
-            setHumans([]);
-        } finally {
-            setLoading(false);
-        }
-    }, [currentPage, sort, filters]);
+        setHumans([]);
+    } finally {
+        setLoading(false);
+    }
+}, [currentPage, sort, filters]);
 
-    useEffect(() => {
+useEffect(() => {
+    loadHumans();
+}, [loadHumans]);
+
+function handleFilterChange(newFilters) {
+    setFilters(newFilters);
+    setCurrentPage(1);
+}
+
+function handleSortChange(newSort) {
+    setSort(newSort);
+    setCurrentPage(1);
+}
+
+function handlePageChange(page) {
+    setCurrentPage(page);
+}
+
+function handleSpecialResult(result) {
+    setSpecialResult(result);
+
+    if (
+        result?.type === "delete" ||
+        result?.type === "update"
+    ) {
         loadHumans();
-    }, [loadHumans]);
-
-
-    // ============================================================
-    // FILTER
-    // ============================================================
-
-    function handleFilterChange(newFilters) {
-        setFilters(newFilters);
-        setCurrentPage(1);
     }
+}
 
+return (
+    <div>
+        <div className="page-header">
+            <div>
+                <h1>Human Beings</h1>
 
-    // ============================================================
-    // SORT
-    // ============================================================
+                <p className="page-subtitle">
+                    Управление героями и их данными
+                </p>
+            </div>
 
-    function handleSortChange(newSort) {
-        setSort(newSort);
-        setCurrentPage(1);
-    }
+            <div className="page-actions">
+                <button
+                    type="button"
+                    onClick={() => navigate("/humans/create")}
+                >
+                    Создать Human Being
+                </button>
 
+                <button
+                    type="button"
+                    className="secondary-button"
+                    onClick={() => navigate("/cars")}
+                >
+                    Все машины
+                </button>
+            </div>
+        </div>
 
-    // ============================================================
-    // PAGINATION
-    // ============================================================
+        <div className="controls-row">
+            <div className="control-card">
+                <FilterPanel
+                    onFilterChange={handleFilterChange}
+                />
+            </div>
 
-    function handlePageChange(page) {
-        setCurrentPage(page);
-    }
+            <div className="control-card">
+                <SortPanel
+                    onSortChange={handleSortChange}
+                />
+            </div>
+        </div>
 
+        <SpecialOperations
+            onResult={handleSpecialResult}
+            onDataChanged={loadHumans}
+        />
 
-    // ============================================================
-    // SPECIAL OPERATIONS
-    // ============================================================
+        {specialResult && (
+            <div className="result-message">
+                <h3>Результат</h3>
 
-    function handleSpecialResult(result) {
-        setSpecialResult(result);
+                {specialResult.type === "error" ||
+                specialResult.type === "message" ? (
+                    <p>{specialResult.data}</p>
+                ) : (
+                    <pre>
+                        {JSON.stringify(
+                            specialResult.data,
+                            null,
+                            2
+                        )}
+                    </pre>
+                )}
+            </div>
+        )}
 
-        // Если специальная операция изменила данные,
-        // перечитываем таблицу из БД.
-        if (
-            result?.type === "delete" ||
-            result?.type === "update"
-        ) {
-            loadHumans();
-        }
-    }
+        {error && (
+            <div className="error-message">
+                {error}
+            </div>
+        )}
 
-
-    // ============================================================
-    // UI
-    // ============================================================
-
-    return (
-        <div>
-            <h1>Human Beings</h1>
-            <button
-                type="button"
-                onClick={() => navigate("/humans/create")}>
-                Создать Human Being
-            </button>
-
-            <FilterPanel
-                onFilterChange={handleFilterChange}
-            />
-
-            <SortPanel
-                onSortChange={handleSortChange}
-            />
-
-            <SpecialOperations
-                onResult={handleSpecialResult}
+        {loading ? (
+            <div className="loading-message">
+                Загрузка...
+            </div>
+        ) : (
+            <HumanTable
+                humans={humans}
                 onDataChanged={loadHumans}
             />
+        )}
 
-            {specialResult && (
-                <div>
-                    <h3>Результат</h3>
+        {totalPages > 0 && (
+            <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={handlePageChange}
+            />
+        )}
+    </div>
+);
 
-                    {specialResult.type === "error" ||
-                    specialResult.type === "message" ? (
-                        <p>{specialResult.data}</p>
-                    ) : (
-                        <pre>
-                            {JSON.stringify(
-                                specialResult.data,
-                                null,
-                                2
-                            )}
-                        </pre>
-                    )}
-                </div>
-            )}
-
-            {error && (
-                <p>
-                    Ошибка: {error}
-                </p>
-            )}
-
-            {loading ? (
-                <p>Загрузка...</p>
-            ) : (
-                <HumanTable
-                    humans={humans}
-                    onDataChanged={loadHumans}
-                />
-            )}
-
-            {totalPages > 0 && (
-                <Pagination
-                    currentPage={currentPage}
-                    totalPages={totalPages}
-                    onPageChange={handlePageChange}
-                />
-            )}
-        </div>
-    );
 }
 
 export default HumanPage;

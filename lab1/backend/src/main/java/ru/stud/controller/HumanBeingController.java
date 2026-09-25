@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.*;
 
 import ru.stud.dto.HumanBeingForm;
 import ru.stud.model.HumanBeing;
+import ru.stud.model.Mood;
+import ru.stud.model.WeaponType;
 import ru.stud.service.HumanBeingService;
 
 @RestController
@@ -24,18 +26,28 @@ public class HumanBeingController {
     // Получить страницу героев
     @GetMapping
     public Page<HumanBeing> getAll(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size,
-            @RequestParam(defaultValue = "id") String sortBy,
-            @RequestParam(defaultValue = "asc") String direction
+            @RequestParam(defaultValue = "0")
+            int page,
+            @RequestParam(defaultValue = "10")
+            int size,
+            @RequestParam(defaultValue = "id")
+            String sortBy,
+            @RequestParam(defaultValue = "asc")
+            String direction,
+            @RequestParam(required = false)
+            String name,
+            @RequestParam(required = false)
+            Boolean realHero,
+            @RequestParam(required = false)
+            Boolean hasToothpick,
+            @RequestParam(required = false)
+            Mood mood,
+            @RequestParam(required = false)
+            WeaponType weaponType
     ) {
-        Sort sort = direction.equalsIgnoreCase("desc")
-                ? Sort.by(sortBy).descending()
-                : Sort.by(sortBy).ascending();
+        Sort sort = direction.equalsIgnoreCase("desc") ? Sort.by(sortBy).descending() : Sort.by(sortBy).ascending();
 
-        return humanBeingService.getAll(
-                PageRequest.of(page, size, sort)
-        );
+        return humanBeingService.getAll(PageRequest.of(page, size, sort), realHero, hasToothpick, mood, weaponType);
     }
 
     // Получить одного

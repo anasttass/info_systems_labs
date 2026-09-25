@@ -1,190 +1,310 @@
 import { useEffect, useState } from "react";
 
 import {
-    getCars,
-    getCoordinates
+getCars,
+getCoordinates,
+createCar,
+createCoordinates
 } from "../web-requests/Requester";
 
 function HumanForm({
-                       initialHuman = null,
-                       onSubmit,
-                       loading = false
-                   }) {
+initialHuman = null,
+onSubmit,
+loading = false
+}) {
+const [cars, setCars] = useState([]);
+const [coordinates, setCoordinates] = useState([]);
 
-    const [cars, setCars] = useState([]);
-    const [coordinates, setCoordinates] = useState([]);
+const [loadingReferences, setLoadingReferences] =
+    useState(true);
 
-    const [loadingReferences, setLoadingReferences] =
-        useState(true);
+const [error, setError] = useState(null);
 
-    const [error, setError] = useState(null);
+const [coordinatesMode, setCoordinatesMode] =
+    useState(
+        initialHuman?.coordinates
+            ? "existing"
+            : "new"
+    );
 
-    const [form, setForm] = useState({
-        name: initialHuman?.name ?? "",
+const [carMode, setCarMode] =
+    useState(
+        initialHuman?.car
+            ? "existing"
+            : "none"
+    );
 
-        coordinatesId:
-            initialHuman?.coordinates?.id != null
-                ? String(initialHuman.coordinates.id)
-                : "",
+const [newCoordinateX, setNewCoordinateX] =
+    useState("");
 
-        realHero:
-            initialHuman?.realHero ?? false,
+const [newCoordinateY, setNewCoordinateY] =
+    useState("");
 
-        hasToothpick:
-            initialHuman?.hasToothpick ?? false,
+const [newCarCool, setNewCarCool] =
+    useState(false);
 
-        carId:
-            initialHuman?.car?.id != null
-                ? String(initialHuman.car.id)
-                : "",
+const [form, setForm] = useState({
+    name:
+        initialHuman?.name ?? "",
 
-        mood:
-            initialHuman?.mood ?? "",
+    coordinatesId:
+        initialHuman?.coordinates?.id != null
+            ? String(initialHuman.coordinates.id)
+            : "",
 
-        impactSpeed:
-            initialHuman?.impactSpeed ?? "",
+    realHero:
+        initialHuman?.realHero ?? false,
 
-        soundtrackName:
-            initialHuman?.soundtrackName ?? "",
+    hasToothpick:
+        initialHuman?.hasToothpick ?? false,
 
-        minutesOfWaiting:
-            initialHuman?.minutesOfWaiting ?? "",
+    carId:
+        initialHuman?.car?.id != null
+            ? String(initialHuman.car.id)
+            : "",
 
-        weaponType:
-            initialHuman?.weaponType ?? ""
-    });
+    mood:
+        initialHuman?.mood ?? "",
 
+    impactSpeed:
+        initialHuman?.impactSpeed ?? "",
 
-    // ============================================================
-    // ЗАГРУЗКА COORDINATES И CAR
-    // ============================================================
+    soundtrackName:
+        initialHuman?.soundtrackName ?? "",
 
-    useEffect(() => {
-        async function loadReferences() {
-            try {
-                setLoadingReferences(true);
-                setError(null);
+    minutesOfWaiting:
+        initialHuman?.minutesOfWaiting ?? "",
 
-                const [
-                    coordinatesData,
-                    carsData
-                ] = await Promise.all([
-                    getCoordinates(),
-                    getCars()
-                ]);
+    weaponType:
+        initialHuman?.weaponType ?? ""
+});
 
-                setCoordinates(coordinatesData);
-                setCars(carsData);
+useEffect(() => {
+    async function loadReferences() {
+        try {
+            setLoadingReferences(true);
+            setError(null);
 
-            } catch (error) {
-                console.error(error);
+            const [
+                coordinatesData,
+                carsData
+            ] = await Promise.all([
+                getCoordinates(),
+                getCars()
+            ]);
 
-                setError(
-                    error.message ||
-                    "Не удалось загрузить связанные объекты"
-                );
-            } finally {
-                setLoadingReferences(false);
-            }
+            setCoordinates(
+                coordinatesData ?? []
+            );
+
+            setCars(
+                carsData ?? []
+            );
+        } catch (error) {
+            console.error(error);
+
+            setError(
+                error.message ||
+                "Не удалось загрузить связанные объекты"
+            );
+        } finally {
+            setLoadingReferences(false);
         }
+    }
 
-        loadReferences();
-    }, []);
+    loadReferences();
+}, []);
 
+function handleChange(event) {
+    const {
+        name,
+        value,
+        type,
+        checked
+    } = event.target;
 
-    // ============================================================
-    // ОБЫЧНЫЕ ПОЛЯ
-    // ============================================================
+    setForm((previous) => ({
+        ...previous,
+        [name]:
+            type === "checkbox"
+                ? checked
+                : value
+    }));
+}
 
-    function handleChange(event) {
-        const {
-            name,
-            value,
-            type,
-            checked
-        } = event.target;
+function handleCoordinatesModeChange(event) {
+    const mode = event.target.value;
 
+    setCoordinatesMode(mode);
+
+    if (mode === "existing") {
+        setNewCoordinateX("");
+        setNewCoordinateY("");
+    }
+
+    if (mode === "new") {
         setForm((previous) => ({
             ...previous,
+            coordinatesId: ""
+        }));
+    }
+}
 
-            [name]:
-                type === "checkbox"
-                    ? checked
-                    : value
+function handleCarModeChange(event) {
+    const mode = event.target.value;
+
+    setCarMode(mode);
+
+    if (mode === "none") {
+        setForm((previous) => ({
+            ...previous,
+            carId: ""
         }));
     }
 
+    if (mode === "new") {
+        setForm((previous) => ({
+            ...previous,
+            carId: ""
+        }));
+    }
+}
 
-    // ============================================================
-    // SUBMIT
-    // ============================================================
+async function handleSubmit(event) {
+    event.preventDefault();
 
-    function handleSubmit(event) {
-        event.preventDefault();
+    setError(null);
 
-        setError(null);
+    if (!form.name.trim()) {
+        setError("Имя не может быть пустым");
+        return;
+    }
 
-        if (!form.name.trim()) {
-            setError("Имя не может быть пустым");
-            return;
-        }
+    if (
+        coordinatesMode === "existing" &&
+        !form.coordinatesId
+    ) {
+        setError("Необходимо выбрать координаты");
+        return;
+    }
 
-        if (!form.coordinatesId) {
-            setError("Необходимо выбрать координаты");
-            return;
-        }
-
-        if (form.impactSpeed === "") {
-            setError("Необходимо указать impact speed");
-            return;
-        }
-
-        if (Number(form.impactSpeed) > 357) {
+    if (coordinatesMode === "new") {
+        if (
+            newCoordinateX === "" ||
+            newCoordinateY === ""
+        ) {
             setError(
-                "Impact speed не может превышать 357"
+                "Необходимо указать X и Y координаты"
             );
             return;
         }
 
-        if (!form.soundtrackName.trim()) {
+        if (Number(newCoordinateY) > 781) {
             setError(
-                "Название саундтрека не может быть пустым"
+                "Y координаты не может превышать 781"
             );
             return;
         }
+    }
 
-        if (form.minutesOfWaiting === "") {
-            setError(
-                "Необходимо указать minutes of waiting"
-            );
-            return;
+    if (
+        carMode === "existing" &&
+        !form.carId
+    ) {
+        setError("Необходимо выбрать машину");
+        return;
+    }
+
+    if (form.impactSpeed === "") {
+        setError(
+            "Необходимо указать impact speed"
+        );
+        return;
+    }
+
+    if (Number(form.impactSpeed) > 357) {
+        setError(
+            "Impact speed не может превышать 357"
+        );
+        return;
+    }
+
+    if (Number(form.impactSpeed) < 0) {
+        setError(
+            "Impact speed не может быть отрицательным"
+        );
+        return;
+    }
+
+    if (!form.soundtrackName.trim()) {
+        setError(
+            "Название саундтрека не может быть пустым"
+        );
+        return;
+    }
+
+    if (form.minutesOfWaiting === "") {
+        setError(
+            "Необходимо указать minutes of waiting"
+        );
+        return;
+    }
+
+    if (!form.weaponType) {
+        setError(
+            "Необходимо выбрать оружие"
+        );
+        return;
+    }
+
+    try {
+        let coordinatesId = null;
+
+        if (coordinatesMode === "existing") {
+            coordinatesId =
+                Number(form.coordinatesId);
         }
 
-        if (!form.weaponType) {
-            setError("Необходимо выбрать оружие");
-            return;
+        if (coordinatesMode === "new") {
+            const createdCoordinates =
+                await createCoordinates({
+                    x: Number(newCoordinateX),
+                    y: Number(newCoordinateY)
+                });
+
+            coordinatesId =
+                createdCoordinates.id;
         }
 
-        // Формируем JSON точно под HumanBeingForm.java
+        let carId = null;
+
+        if (carMode === "existing") {
+            carId = Number(form.carId);
+        }
+
+        if (carMode === "new") {
+            const createdCar =
+                await createCar({
+                    cool: newCarCool
+                });
+
+            carId = createdCar.id;
+        }
+
         const human = {
-            name: form.name.trim(),
+            name:
+                form.name.trim(),
 
-            coordinatesId:
-                Number(form.coordinatesId),
+            coordinatesId,
 
             realHero:
-            form.realHero,
+                form.realHero,
 
             hasToothpick:
-            form.hasToothpick,
+                form.hasToothpick,
 
-            // car может быть null
-            carId:
-                form.carId
-                    ? Number(form.carId)
-                    : null,
+            carId,
 
-            // mood может быть null
             mood:
                 form.mood || null,
 
@@ -198,290 +318,432 @@ function HumanForm({
                 Number(form.minutesOfWaiting),
 
             weaponType:
-            form.weaponType
+                form.weaponType
         };
 
-        onSubmit(human);
+        await onSubmit(human);
+    } catch (error) {
+        console.error(error);
+
+        setError(
+            error.message ||
+            "Не удалось сохранить данные"
+        );
     }
+}
 
-
-    // ============================================================
-    // UI
-    // ============================================================
-
-    if (loadingReferences) {
-        return <p>Загрузка формы...</p>;
-    }
-
+if (loadingReferences) {
     return (
-        <form onSubmit={handleSubmit}>
+        <div className="loading-message">
+            Загрузка формы...
+        </div>
+    );
+}
 
-            <h2>Human Being</h2>
+return (
+    <form onSubmit={handleSubmit}>
+        <h2>Human Being</h2>
 
-            {error && (
-                <div>
-                    <strong>Ошибка:</strong> {error}
-                </div>
-            )}
+        {error && (
+            <div className="error-message">
+                {error}
+            </div>
+        )}
 
+        <div className="form-field">
+            <label>
+                Name
 
-            {/* NAME */}
+                <input
+                    type="text"
+                    name="name"
+                    value={form.name}
+                    onChange={handleChange}
+                    disabled={loading}
+                    required
+                />
+            </label>
+        </div>
 
-            <div>
-                <label>
-                    Name:
+        <div className="form-field">
+            <label>
+                Coordinates
+            </label>
 
+            <div className="choice-row">
+                <label className="radio-option">
                     <input
-                        type="text"
-                        name="name"
-                        value={form.name}
-                        onChange={handleChange}
+                        type="radio"
+                        name="coordinatesMode"
+                        value="existing"
+                        checked={
+                            coordinatesMode ===
+                            "existing"
+                        }
+                        onChange={
+                            handleCoordinatesModeChange
+                        }
                         disabled={loading}
-                        required
                     />
+                    Выбрать существующие
+                </label>
+
+                <label className="radio-option">
+                    <input
+                        type="radio"
+                        name="coordinatesMode"
+                        value="new"
+                        checked={
+                            coordinatesMode ===
+                            "new"
+                        }
+                        onChange={
+                            handleCoordinatesModeChange
+                        }
+                        disabled={loading}
+                    />
+                    Создать новые
                 </label>
             </div>
 
+            {coordinatesMode === "existing" && (
+                <select
+                    name="coordinatesId"
+                    value={form.coordinatesId}
+                    onChange={handleChange}
+                    disabled={loading}
+                    required
+                >
+                    <option value="">
+                        Выберите координаты
+                    </option>
 
-            {/* COORDINATES */}
-
-            <div>
-                <label>
-                    Coordinates:
-
-                    <select
-                        name="coordinatesId"
-                        value={form.coordinatesId}
-                        onChange={handleChange}
-                        disabled={loading}
-                        required
-                    >
-                        <option value="">
-                            -- Select coordinates --
-                        </option>
-
-                        {coordinates.map((coordinate) => (
+                    {coordinates.map(
+                        (coordinate) => (
                             <option
                                 key={coordinate.id}
                                 value={coordinate.id}
                             >
-                                ID {coordinate.id}: x={coordinate.x},
-                                y={coordinate.y}
+                                ID {coordinate.id}: x=
+                                {coordinate.x}, y=
+                                {coordinate.y}
                             </option>
-                        ))}
-                    </select>
+                        )
+                    )}
+                </select>
+            )}
+
+            {coordinatesMode === "new" && (
+                <div className="inline-fields">
+                    <label>
+                        X
+
+                        <input
+                            type="number"
+                            step="any"
+                            value={
+                                newCoordinateX
+                            }
+                            onChange={(event) =>
+                                setNewCoordinateX(
+                                    event.target.value
+                                )
+                            }
+                            disabled={loading}
+                        />
+                    </label>
+
+                    <label>
+                        Y
+
+                        <input
+                            type="number"
+                            step="any"
+                            max="781"
+                            value={
+                                newCoordinateY
+                            }
+                            onChange={(event) =>
+                                setNewCoordinateY(
+                                    event.target.value
+                                )
+                            }
+                            disabled={loading}
+                        />
+                    </label>
+                </div>
+            )}
+        </div>
+
+        <div className="form-field">
+            <label className="checkbox-option">
+                <input
+                    type="checkbox"
+                    name="realHero"
+                    checked={
+                        form.realHero
+                    }
+                    onChange={handleChange}
+                    disabled={loading}
+                />
+
+                Real hero
+            </label>
+        </div>
+
+        <div className="form-field">
+            <label className="checkbox-option">
+                <input
+                    type="checkbox"
+                    name="hasToothpick"
+                    checked={
+                        form.hasToothpick
+                    }
+                    onChange={handleChange}
+                    disabled={loading}
+                />
+
+                Has toothpick
+            </label>
+        </div>
+
+        <div className="form-field">
+            <label>
+                Car
+            </label>
+
+            <div className="choice-row">
+                <label className="radio-option">
+                    <input
+                        type="radio"
+                        name="carMode"
+                        value="none"
+                        checked={
+                            carMode === "none"
+                        }
+                        onChange={
+                            handleCarModeChange
+                        }
+                        disabled={loading}
+                    />
+                    Без машины
+                </label>
+
+                <label className="radio-option">
+                    <input
+                        type="radio"
+                        name="carMode"
+                        value="existing"
+                        checked={
+                            carMode ===
+                            "existing"
+                        }
+                        onChange={
+                            handleCarModeChange
+                        }
+                        disabled={loading}
+                    />
+                    Выбрать существующую
+                </label>
+
+                <label className="radio-option">
+                    <input
+                        type="radio"
+                        name="carMode"
+                        value="new"
+                        checked={
+                            carMode === "new"
+                        }
+                        onChange={
+                            handleCarModeChange
+                        }
+                        disabled={loading}
+                    />
+                    Создать новую
                 </label>
             </div>
 
+            {carMode === "existing" && (
+                <select
+                    name="carId"
+                    value={form.carId}
+                    onChange={handleChange}
+                    disabled={loading}
+                    required
+                >
+                    <option value="">
+                        Выберите машину
+                    </option>
 
-            {/* REAL HERO */}
+                    {cars.map((car) => (
+                        <option
+                            key={car.id}
+                            value={car.id}
+                        >
+                            ID {car.id}: cool =
+                            {car.cool
+                                ? " true"
+                                : " false"}
+                        </option>
+                    ))}
+                </select>
+            )}
 
-            <div>
-                <label>
+            {carMode === "new" && (
+                <label className="checkbox-option">
                     <input
                         type="checkbox"
-                        name="realHero"
-                        checked={form.realHero}
-                        onChange={handleChange}
+                        checked={
+                            newCarCool
+                        }
+                        onChange={(event) =>
+                            setNewCarCool(
+                                event.target.checked
+                            )
+                        }
                         disabled={loading}
                     />
 
-                    Real hero
+                    Cool
                 </label>
-            </div>
+            )}
+        </div>
 
+        <div className="form-field">
+            <label>
+                Mood
 
-            {/* HAS TOOTHPICK */}
+                <select
+                    name="mood"
+                    value={form.mood}
+                    onChange={handleChange}
+                    disabled={loading}
+                >
+                    <option value="">
+                        Нет
+                    </option>
 
-            <div>
-                <label>
-                    <input
-                        type="checkbox"
-                        name="hasToothpick"
-                        checked={form.hasToothpick}
-                        onChange={handleChange}
-                        disabled={loading}
-                    />
+                    <option value="SADNESS">
+                        SADNESS
+                    </option>
 
-                    Has toothpick
-                </label>
-            </div>
+                    <option value="SORROW">
+                        SORROW
+                    </option>
 
+                    <option value="RAGE">
+                        RAGE
+                    </option>
 
-            {/* CAR */}
+                    <option value="FRENZY">
+                        FRENZY
+                    </option>
+                </select>
+            </label>
+        </div>
 
-            <div>
-                <label>
-                    Car:
+        <div className="form-field">
+            <label>
+                Impact speed
 
-                    <select
-                        name="carId"
-                        value={form.carId}
-                        onChange={handleChange}
-                        disabled={loading}
-                    >
-                        <option value="">
-                            -- No car --
-                        </option>
+                <input
+                    type="number"
+                    name="impactSpeed"
+                    value={form.impactSpeed}
+                    onChange={handleChange}
+                    max="357"
+                    step="any"
+                    disabled={loading}
+                    required
+                />
+            </label>
+        </div>
 
-                        {cars.map((car) => (
-                            <option
-                                key={car.id}
-                                value={car.id}
-                            >
-                                ID {car.id}: cool =
-                                {car.cool ? " true" : " false"}
-                            </option>
-                        ))}
-                    </select>
-                </label>
-            </div>
+        <div className="form-field">
+            <label>
+                Soundtrack name
 
+                <input
+                    type="text"
+                    name="soundtrackName"
+                    value={
+                        form.soundtrackName
+                    }
+                    onChange={handleChange}
+                    disabled={loading}
+                    required
+                />
+            </label>
+        </div>
 
-            {/* MOOD */}
+        <div className="form-field">
+            <label>
+                Minutes of waiting
 
-            <div>
-                <label>
-                    Mood:
+                <input
+                    type="number"
+                    name="minutesOfWaiting"
+                    value={
+                        form.minutesOfWaiting
+                    }
+                    onChange={handleChange}
+                    disabled={loading}
+                    required
+                />
+            </label>
+        </div>
 
-                    <select
-                        name="mood"
-                        value={form.mood}
-                        onChange={handleChange}
-                        disabled={loading}
-                    >
-                        <option value="">
-                            -- None --
-                        </option>
+        <div className="form-field">
+            <label>
+                Weapon type
 
-                        <option value="SADNESS">
-                            SADNESS
-                        </option>
+                <select
+                    name="weaponType"
+                    value={
+                        form.weaponType
+                    }
+                    onChange={handleChange}
+                    disabled={loading}
+                    required
+                >
+                    <option value="">
+                        Выберите оружие
+                    </option>
 
-                        <option value="SORROW">
-                            SORROW
-                        </option>
+                    <option value="HAMMER">
+                        HAMMER
+                    </option>
 
-                        <option value="RAGE">
-                            RAGE
-                        </option>
+                    <option value="AXE">
+                        AXE
+                    </option>
 
-                        <option value="FRENZY">
-                            FRENZY
-                        </option>
-                    </select>
-                </label>
-            </div>
+                    <option value="SHOTGUN">
+                        SHOTGUN
+                    </option>
 
+                    <option value="MACHINE_GUN">
+                        MACHINE_GUN
+                    </option>
 
-            {/* IMPACT SPEED */}
+                    <option value="BAT">
+                        BAT
+                    </option>
+                </select>
+            </label>
+        </div>
 
-            <div>
-                <label>
-                    Impact speed:
+        <button
+            type="submit"
+            disabled={loading}
+        >
+            {loading
+                ? "Сохранение..."
+                : "Сохранить"}
+        </button>
+    </form>
+);
 
-                    <input
-                        type="number"
-                        name="impactSpeed"
-                        value={form.impactSpeed}
-                        onChange={handleChange}
-                        max="357"
-                        step="any"
-                        disabled={loading}
-                        required
-                    />
-                </label>
-            </div>
-
-
-            {/* SOUNDTRACK */}
-
-            <div>
-                <label>
-                    Soundtrack name:
-
-                    <input
-                        type="text"
-                        name="soundtrackName"
-                        value={form.soundtrackName}
-                        onChange={handleChange}
-                        disabled={loading}
-                        required
-                    />
-                </label>
-            </div>
-
-
-            {/* MINUTES OF WAITING */}
-
-            <div>
-                <label>
-                    Minutes of waiting:
-
-                    <input
-                        type="number"
-                        name="minutesOfWaiting"
-                        value={form.minutesOfWaiting}
-                        onChange={handleChange}
-                        disabled={loading}
-                        required
-                    />
-                </label>
-            </div>
-
-
-            {/* WEAPON TYPE */}
-
-            <div>
-                <label>
-                    Weapon type:
-
-                    <select
-                        name="weaponType"
-                        value={form.weaponType}
-                        onChange={handleChange}
-                        disabled={loading}
-                        required
-                    >
-                        <option value="">
-                            -- Select weapon --
-                        </option>
-
-                        <option value="HAMMER">
-                            HAMMER
-                        </option>
-
-                        <option value="AXE">
-                            AXE
-                        </option>
-
-                        <option value="SHOTGUN">
-                            SHOTGUN
-                        </option>
-
-                        <option value="MACHINE_GUN">
-                            MACHINE_GUN
-                        </option>
-
-                        <option value="BAT">
-                            BAT
-                        </option>
-                    </select>
-                </label>
-            </div>
-
-
-            <button
-                type="submit"
-                disabled={loading}
-            >
-                {loading
-                    ? "Сохранение..."
-                    : "Сохранить"}
-            </button>
-
-        </form>
-    );
 }
 
 export default HumanForm;

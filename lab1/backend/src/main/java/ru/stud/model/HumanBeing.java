@@ -29,7 +29,7 @@ public class HumanBeing {
     private boolean hasToothpick;
 
     @OneToOne
-    @JoinColumn(name = "car_id", nullable = true)
+    @JoinColumn(name = "car_id", nullable = true,unique = true)
     private Car car;
 
     @Column(nullable = true)
