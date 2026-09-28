@@ -2,6 +2,7 @@ package ru.stud.service;
 
 import ru.stud.dto.HumanBeingForm;
 
+import ru.stud.dto.HumanBeingResponse;
 import ru.stud.model.Car;
 import ru.stud.model.Coordinates;
 import ru.stud.model.HumanBeing;
@@ -50,21 +51,19 @@ public class HumanBeingService {
 
 
     @Transactional(readOnly = true)
-    public List<HumanBeingForm> getAll() {
+    public List<HumanBeingResponse> getAll() {
 
         return humanBeingRepository.findAll()
                 .stream()
-                .map(this::toForm)
+                .map(this::toResponse)
                 .toList();
     }
 
 
-
-    // 2. ПОЛУЧЕНИЕ СТРАНИЦЫ С ФИЛЬТРАЦИЕЙ
-
+// 2. ПОЛУЧЕНИЕ СТРАНИЦЫ С ФИЛЬТРАЦИЕЙ
 
     @Transactional(readOnly = true)
-    public Page<HumanBeingForm> getAll(
+    public Page<HumanBeingResponse> getAll(
             Pageable pageable,
             Boolean realHero,
             Boolean hasToothpick,
@@ -80,20 +79,18 @@ public class HumanBeingService {
                         weaponType,
                         pageable
                 )
-                .map(this::toForm);
+                .map(this::toResponse);
     }
-
-
 
     // 3. ПОЛУЧЕНИЕ ГЕРОЯ ПО ID
 
 
     @Transactional(readOnly = true)
-    public HumanBeingForm getById(Long id) {
+    public HumanBeingResponse getById(Long id) {
 
         HumanBeing hero = getEntityById(id);
 
-        return toForm(hero);
+        return toResponse(hero);
     }
 
     // 4. ВНУТРЕННЕЕ ПОЛУЧЕНИЕ ENTITY ПО ID
@@ -357,5 +354,24 @@ public class HumanBeingService {
                             + ", поскольку с ним связаны другие объекты"
             );
         }
+    }
+    private HumanBeingResponse toResponse(HumanBeing humanBeing) {
+
+        HumanBeingResponse response = new HumanBeingResponse();
+
+        response.setId(humanBeing.getId());
+        response.setName(humanBeing.getName());
+        response.setCoordinates(humanBeing.getCoordinates());
+        response.setCreationDate(humanBeing.getCreationDate());
+        response.setRealHero(humanBeing.isRealHero());
+        response.setHasToothpick(humanBeing.isHasToothpick());
+        response.setCar(humanBeing.getCar());
+        response.setMood(humanBeing.getMood());
+        response.setImpactSpeed(humanBeing.getImpactSpeed());
+        response.setSoundtrackName(humanBeing.getSoundtrackName());
+        response.setMinutesOfWaiting(humanBeing.getMinutesOfWaiting());
+        response.setWeaponType(humanBeing.getWeaponType());
+
+        return response;
     }
 }

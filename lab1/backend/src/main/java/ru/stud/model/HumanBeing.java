@@ -3,6 +3,7 @@ package ru.stud.model;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.DecimalMax;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "humanbeing")
@@ -38,7 +39,7 @@ public class HumanBeing {
 
     @Column
     @DecimalMax(value = "357")
-    private float impactSpeed;
+    private double impactSpeed;
 
     @Column(nullable = false)
     private String soundtrackName;
@@ -90,7 +91,7 @@ public class HumanBeing {
         return mood;
     }
 
-    public float getImpactSpeed() {
+    public double getImpactSpeed() {
         return impactSpeed;
     }
 
@@ -140,7 +141,7 @@ public class HumanBeing {
         this.mood = mood;
     }
 
-    public void setImpactSpeed(float impactSpeed) {
+    public void setImpactSpeed(double impactSpeed) {
         this.impactSpeed = impactSpeed;
     }
 

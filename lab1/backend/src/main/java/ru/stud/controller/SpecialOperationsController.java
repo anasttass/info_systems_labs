@@ -3,6 +3,7 @@ package ru.stud.controller;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.stud.dto.HumanBeingForm;
+import ru.stud.dto.HumanBeingResponse;
 import ru.stud.service.SpecialOperationsService;
 
 import java.util.List;
@@ -28,13 +29,10 @@ public class SpecialOperationsController {
 
     // 2. Поиск по подстроке имени
     @GetMapping("/search-by-name")
-    public List<HumanBeingForm> searchByName(
+    public List<HumanBeingResponse> searchByName(
             @RequestParam String substring
     ) {
-
-        return service.searchByName(
-                substring
-        );
+        return service.searchByName(substring);
     }
 
     // 3. Уникальные minutesOfWaiting

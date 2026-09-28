@@ -28,7 +28,7 @@ public class HumanBeingForm {
             value = "357",
             message = "Скорость не может превышать 357"
     )
-    private Float impactSpeed;
+    private Double impactSpeed;
 
     @NotBlank(message = "Название саундтрека не может быть пустым")
     private String soundtrackName;
@@ -65,7 +65,7 @@ public class HumanBeingForm {
         return mood;
     }
 
-    public Float getImpactSpeed() {
+    public Double getImpactSpeed() {
         return impactSpeed;
     }
 
@@ -107,7 +107,7 @@ public class HumanBeingForm {
         this.mood = mood;
     }
 
-    public void setImpactSpeed(Float impactSpeed) {
+    public void setImpactSpeed(Double impactSpeed) {
         this.impactSpeed = impactSpeed;
     }
 

@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import ru.stud.dto.HumanBeingForm;
+import ru.stud.dto.HumanBeingResponse;
 import ru.stud.model.Mood;
 import ru.stud.model.WeaponType;
 import ru.stud.service.HumanBeingService;
@@ -33,42 +34,22 @@ public class HumanBeingController {
     // 1. ПОЛУЧИТЬ СТРАНИЦУ ГЕРОЕВ
 
     @GetMapping
-    public Page<HumanBeingForm> getAll(
-
-            @RequestParam(defaultValue = "0")
-            int page,
-
-            @RequestParam(defaultValue = "10")
-            int size,
-
-            @RequestParam(defaultValue = "id")
-            String sortBy,
-
-            @RequestParam(defaultValue = "asc")
-            String direction,
-
-            @RequestParam(required = false)
-            Boolean realHero,
-
-            @RequestParam(required = false)
-            Boolean hasToothpick,
-
-            @RequestParam(required = false)
-            Mood mood,
-
-            @RequestParam(required = false)
-            WeaponType weaponType
-
+    public Page<HumanBeingResponse> getAll(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "id") String sortBy,
+            @RequestParam(defaultValue = "asc") String direction,
+            @RequestParam(required = false) Boolean realHero,
+            @RequestParam(required = false) Boolean hasToothpick,
+            @RequestParam(required = false) Mood mood,
+            @RequestParam(required = false) WeaponType weaponType
     ) {
 
         Sort sort = direction.equalsIgnoreCase("desc")
                 ? Sort.by(sortBy).descending()
                 : Sort.by(sortBy).ascending();
 
-
-        PageRequest pageable =
-                PageRequest.of(page, size, sort);
-
+        PageRequest pageable = PageRequest.of(page, size, sort);
 
         return humanBeingService.getAll(
                 pageable,
@@ -80,18 +61,13 @@ public class HumanBeingController {
     }
 
 
-
     // 2. ПОЛУЧИТЬ ОДНОГО ГЕРОЯ
 
 
     @GetMapping("/{id}")
-    public HumanBeingForm getById(
-            @PathVariable Long id
-    ) {
-
+    public HumanBeingResponse getById(@PathVariable Long id) {
         return humanBeingService.getById(id);
     }
-
 
 
     // 3. СОЗДАТЬ ГЕРОЯ

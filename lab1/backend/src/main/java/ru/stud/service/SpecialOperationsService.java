@@ -2,6 +2,7 @@ package ru.stud.service;
 
 import ru.stud.dto.HumanBeingForm;
 
+import ru.stud.dto.HumanBeingResponse;
 import ru.stud.model.HumanBeing;
 import ru.stud.model.Mood;
 
@@ -50,9 +51,8 @@ public class SpecialOperationsService {
 
     // 2. ПОИСК ПО ПОДСТРОКЕ ИМЕНИ
 
-
     @Transactional(readOnly = true)
-    public List<HumanBeingForm> searchByName(
+    public List<HumanBeingResponse> searchByName(
             String substring
     ) {
 
@@ -66,12 +66,11 @@ public class SpecialOperationsService {
                                 .contains(substring)
                 )
 
-                // Entity -> DTO
-                .map(this::toForm)
+                // Entity -> Response DTO
+                .map(this::toResponse)
 
                 .toList();
     }
-
 
     // 3. УНИКАЛЬНЫЕ MINUTES OF WAITING
 
@@ -212,5 +211,24 @@ public class SpecialOperationsService {
 
 
         return form;
+    }
+    private HumanBeingResponse toResponse(HumanBeing hero) {
+
+        HumanBeingResponse response = new HumanBeingResponse();
+
+        response.setId(hero.getId());
+        response.setName(hero.getName());
+        response.setCoordinates(hero.getCoordinates());
+        response.setCreationDate(hero.getCreationDate());
+        response.setRealHero(hero.isRealHero());
+        response.setHasToothpick(hero.isHasToothpick());
+        response.setCar(hero.getCar());
+        response.setMood(hero.getMood());
+        response.setImpactSpeed(hero.getImpactSpeed());
+        response.setSoundtrackName(hero.getSoundtrackName());
+        response.setMinutesOfWaiting(hero.getMinutesOfWaiting());
+        response.setWeaponType(hero.getWeaponType());
+
+        return response;
     }
 }
