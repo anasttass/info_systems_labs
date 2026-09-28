@@ -2,7 +2,11 @@ package ru.stud.service;
 
 import ru.stud.dto.HumanBeingForm;
 
-import ru.stud.model.*;
+import ru.stud.model.Car;
+import ru.stud.model.Coordinates;
+import ru.stud.model.HumanBeing;
+import ru.stud.model.Mood;
+import ru.stud.model.WeaponType;
 
 import ru.stud.repository.HumanBeingRepository;
 import ru.stud.repository.CoordinatesRepository;
@@ -21,13 +25,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+
 @Service
 public class HumanBeingService {
 
     private final HumanBeingRepository humanBeingRepository;
-
     private final CoordinatesRepository coordinatesRepository;
-
     private final CarRepository carRepository;
 
 
@@ -36,45 +39,66 @@ public class HumanBeingService {
             CoordinatesRepository coordinatesRepository,
             CarRepository carRepository
     ) {
-
         this.humanBeingRepository = humanBeingRepository;
-
         this.coordinatesRepository = coordinatesRepository;
-
         this.carRepository = carRepository;
     }
 
 
-    // ==========================================
+
     // 1. ПОЛУЧЕНИЕ ВСЕХ ГЕРОЕВ
-    // ==========================================
+
 
     @Transactional(readOnly = true)
-    public List<HumanBeing> getAll() {
+    public List<HumanBeingForm> getAll() {
 
-        return humanBeingRepository.findAll();
+        return humanBeingRepository.findAll()
+                .stream()
+                .map(this::toForm)
+                .toList();
     }
 
 
-    // ==========================================
-    // 2. ПОЛУЧЕНИЕ ГЕРОЕВ С ПАГИНАЦИЕЙ
-    // ==========================================
+
+    // 2. ПОЛУЧЕНИЕ СТРАНИЦЫ С ФИЛЬТРАЦИЕЙ
+
 
     @Transactional(readOnly = true)
-    public Page<HumanBeing> getAll(Pageable pageable, Boolean realHero, Boolean hasToothpick, Mood mood, WeaponType weaponType) {
+    public Page<HumanBeingForm> getAll(
+            Pageable pageable,
+            Boolean realHero,
+            Boolean hasToothpick,
+            Mood mood,
+            WeaponType weaponType
+    ) {
 
-//        String normalizedName = name == null || name.isBlank() ? null : name.trim();
-
-        return humanBeingRepository.findAllWithFilters(realHero,hasToothpick,mood,weaponType,pageable);
+        return humanBeingRepository
+                .findAllWithFilters(
+                        realHero,
+                        hasToothpick,
+                        mood,
+                        weaponType,
+                        pageable
+                )
+                .map(this::toForm);
     }
 
 
-    // ==========================================
+
     // 3. ПОЛУЧЕНИЕ ГЕРОЯ ПО ID
-    // ==========================================
+
 
     @Transactional(readOnly = true)
-    public HumanBeing getById(Long id) {
+    public HumanBeingForm getById(Long id) {
+
+        HumanBeing hero = getEntityById(id);
+
+        return toForm(hero);
+    }
+
+    // 4. ВНУТРЕННЕЕ ПОЛУЧЕНИЕ ENTITY ПО ID
+
+    private HumanBeing getEntityById(Long id) {
 
         return humanBeingRepository.findById(id)
                 .orElseThrow(() ->
@@ -85,54 +109,56 @@ public class HumanBeingService {
     }
 
 
-    // ==========================================
-    // 4. СОЗДАНИЕ ГЕРОЯ
-    // ==========================================
+    // 5. СОЗДАНИЕ ГЕРОЯ
 
     @Transactional
-    public HumanBeing create(HumanBeingForm form) {
+    public HumanBeingForm create(HumanBeingForm form) {
 
-        // Создаём новый объект
-
+        // Создаём Entity
         HumanBeing hero = new HumanBeing();
 
-        // Заполняем его данными из DTO
-
+        // Переносим данные из DTO в Entity
         fillHumanBeing(hero, form, null);
 
-        // Сохраняем в PostgreSQL
+        // Repository работает только с Entity
+        HumanBeing savedHero =
+                humanBeingRepository.save(hero);
 
-        return humanBeingRepository.save(hero);
+        // Наружу возвращаем DTO
+        return toForm(savedHero);
     }
 
 
-    // ==========================================
-    // 5. ОБНОВЛЕНИЕ ГЕРОЯ
-    // ==========================================
+    // 6. ОБНОВЛЕНИЕ ГЕРОЯ
+
 
     @Transactional
-    public HumanBeing update(
+    public HumanBeingForm update(
             Long id,
             HumanBeingForm form
     ) {
 
-        // Получаем существующего героя
+        // Получаем Entity из БД
+        HumanBeing hero = getEntityById(id);
 
-        HumanBeing hero = getById(id);
+        /*
+         * Передаём id текущего героя.
+         * текущая машина самого героя не должна
+         * считаться занятой другим HumanBeing.
+         */
+        fillHumanBeing(hero, form, id);
 
-        // Изменяем его атрибуты
+        // Сохраняем Entity
+        HumanBeing savedHero =
+                humanBeingRepository.save(hero);
 
-        fillHumanBeing(hero, form, null);
-
-        // Сохраняем изменения
-
-        return humanBeingRepository.save(hero);
+        // Возвращаем DTO
+        return toForm(savedHero);
     }
 
 
-    // ==========================================
-    // 6. ЗАПОЛНЕНИЕ ENTITY ИЗ DTO
-    // ==========================================
+
+    // 7. DTO -> ENTITY
 
     private void fillHumanBeing(
             HumanBeing hero,
@@ -140,6 +166,7 @@ public class HumanBeingService {
             Long currentHumanId
     ) {
 
+        // Получаем Coordinates Entity
         Coordinates coordinates =
                 coordinatesRepository.findById(
                         form.getCoordinatesId()
@@ -150,6 +177,7 @@ public class HumanBeingService {
                                         + " не найдены"
                         )
                 );
+
 
         Car car = null;
 
@@ -165,17 +193,21 @@ public class HumanBeingService {
                     )
             );
 
+
+
             boolean carAlreadyUsed;
 
             if (currentHumanId == null) {
-                // Создание нового HumanBeing
+
+
                 carAlreadyUsed =
                         humanBeingRepository.existsByCarId(
                                 form.getCarId()
                         );
+
             } else {
-                // Редактирование.
-                // Своя текущая машина разрешена.
+
+
                 carAlreadyUsed =
                         humanBeingRepository.existsByCarIdAndIdNot(
                                 form.getCarId(),
@@ -183,7 +215,9 @@ public class HumanBeingService {
                         );
             }
 
+
             if (carAlreadyUsed) {
+
                 throw new IllegalStateException(
                         "Автомобиль с ID "
                                 + form.getCarId()
@@ -192,40 +226,76 @@ public class HumanBeingService {
             }
         }
 
+
+        // Заполняем Entity данными из DTO
+
+
         hero.setName(form.getName());
+
         hero.setCoordinates(coordinates);
-        hero.setRealHero(form.getRealHero());
-        hero.setHasToothpick(form.getHasToothpick());
+
+        hero.setRealHero(
+                form.getRealHero()
+        );
+
+        hero.setHasToothpick(
+                form.getHasToothpick()
+        );
+
         hero.setCar(car);
-        hero.setMood(form.getMood());
-        hero.setImpactSpeed(form.getImpactSpeed());
-        hero.setSoundtrackName(form.getSoundtrackName());
-        hero.setMinutesOfWaiting(form.getMinutesOfWaiting());
-        hero.setWeaponType(form.getWeaponType());
+
+        hero.setMood(
+                form.getMood()
+        );
+
+        hero.setImpactSpeed(
+                form.getImpactSpeed()
+        );
+
+        hero.setSoundtrackName(
+                form.getSoundtrackName()
+        );
+
+        hero.setMinutesOfWaiting(
+                form.getMinutesOfWaiting()
+        );
+
+        hero.setWeaponType(
+                form.getWeaponType()
+        );
     }
 
 
-    // ==========================================
-    // 7. ПРЕОБРАЗОВАНИЕ ENTITY В DTO
-    // ==========================================
 
-    @Transactional(readOnly = true)
-    public HumanBeingForm toForm(HumanBeing hero) {
+    // 8. ENTITY -> DTO
+
+    private HumanBeingForm toForm(HumanBeing hero) {
 
         HumanBeingForm form = new HumanBeingForm();
 
-        form.setName(hero.getName());
 
+        form.setName(
+                hero.getName()
+        );
+
+
+        // Entity -> ID
         form.setCoordinatesId(
                 hero.getCoordinates().getId()
         );
 
-        form.setRealHero(hero.isRealHero());
+
+        form.setRealHero(
+                hero.isRealHero()
+        );
+
 
         form.setHasToothpick(
                 hero.isHasToothpick()
         );
 
+
+        // Car может отсутствовать
         if (hero.getCar() != null) {
 
             form.setCarId(
@@ -233,42 +303,49 @@ public class HumanBeingService {
             );
         }
 
-        form.setMood(hero.getMood());
+
+        form.setMood(
+                hero.getMood()
+        );
+
 
         form.setImpactSpeed(
                 hero.getImpactSpeed()
         );
 
+
         form.setSoundtrackName(
                 hero.getSoundtrackName()
         );
+
 
         form.setMinutesOfWaiting(
                 hero.getMinutesOfWaiting()
         );
 
+
         form.setWeaponType(
                 hero.getWeaponType()
         );
+
 
         return form;
     }
 
 
-    // ==========================================
-    // 8. УДАЛЕНИЕ ГЕРОЯ
-    // ==========================================
+    // 9. УДАЛЕНИЕ ГЕРОЯ
+
 
     @Transactional
     public void delete(Long id) {
 
-        HumanBeing hero = getById(id);
+
+        HumanBeing hero = getEntityById(id);
+
 
         try {
 
             humanBeingRepository.delete(hero);
-
-            // Принудительно выполняем SQL DELETE
 
             humanBeingRepository.flush();
 

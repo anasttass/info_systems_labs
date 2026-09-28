@@ -1,6 +1,11 @@
 package ru.stud.service;
 
+import ru.stud.dto.CoordinatesForm;
+
+import ru.stud.exception.ResourceNotFoundException;
+
 import ru.stud.model.Coordinates;
+
 import ru.stud.repository.CoordinatesRepository;
 
 import org.springframework.stereotype.Service;
@@ -8,66 +13,171 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+
 @Service
 public class CoordinatesService {
 
     private final CoordinatesRepository repository;
 
-    public CoordinatesService(CoordinatesRepository repository) {
+
+    public CoordinatesService(
+            CoordinatesRepository repository
+    ) {
         this.repository = repository;
     }
 
-    @Transactional(readOnly = true)
-    public List<Coordinates> getAll() {
-        return repository.findAll();
-    }
+
+    // ==========================================
+    // 1. ПОЛУЧИТЬ ВСЕ КООРДИНАТЫ
+    // ==========================================
 
     @Transactional(readOnly = true)
-    public Coordinates getById(Long id) {
+    public List<CoordinatesForm> getAll() {
+
+        return repository.findAll()
+                .stream()
+                .map(this::toForm)
+                .toList();
+    }
+
+
+    // ==========================================
+    // 2. ПОЛУЧИТЬ КООРДИНАТЫ ПО ID
+    // ==========================================
+
+    @Transactional(readOnly = true)
+    public CoordinatesForm getById(Long id) {
+
+        return toForm(
+                getEntityById(id)
+        );
+    }
+
+
+    // ==========================================
+    // 3. ПОЛУЧИТЬ ENTITY ПО ID
+    // ==========================================
+
+    private Coordinates getEntityById(Long id) {
+
         return repository.findById(id)
                 .orElseThrow(() ->
-                        new RuntimeException(
-                                "Координаты с ID " + id + " не найдены"
+                        new ResourceNotFoundException(
+                                "Координаты с ID "
+                                        + id
+                                        + " не найдены"
                         )
                 );
     }
 
-    @Transactional
-    public Coordinates create(Coordinates coordinates) {
-        // ID генерирует PostgreSQL
-        coordinates.setId(null);
 
-        return repository.save(coordinates);
-    }
+    // ==========================================
+    // 4. СОЗДАТЬ КООРДИНАТЫ
+    // ==========================================
 
     @Transactional
-    public Coordinates update(Long id, Coordinates newCoordinates) {
+    public CoordinatesForm create(
+            CoordinatesForm form
+    ) {
 
-        // Находим существующий объект
-        Coordinates existingCoordinates = repository.findById(id)
-                 .orElseThrow(() ->
-                        new RuntimeException(
-                                "Координаты с ID " + id + " не найдены"
-                        )
-                );
+        Coordinates coordinates =
+                new Coordinates();
 
-        // Изменяем поля существующего объекта
-        existingCoordinates.setX(newCoordinates.getX());
-        existingCoordinates.setY(newCoordinates.getY());
+        fillCoordinates(
+                coordinates,
+                form
+        );
 
-        return repository.save(existingCoordinates);
+        Coordinates savedCoordinates =
+                repository.save(coordinates);
+
+        return toForm(savedCoordinates);
     }
+
+
+    // ==========================================
+    // 5. ОБНОВИТЬ КООРДИНАТЫ
+    // ==========================================
+
+    @Transactional
+    public CoordinatesForm update(
+            Long id,
+            CoordinatesForm form
+    ) {
+
+        Coordinates existingCoordinates =
+                getEntityById(id);
+
+        fillCoordinates(
+                existingCoordinates,
+                form
+        );
+
+        Coordinates savedCoordinates =
+                repository.save(existingCoordinates);
+
+        return toForm(savedCoordinates);
+    }
+
+
+    // ==========================================
+    // 6. УДАЛИТЬ КООРДИНАТЫ
+    // ==========================================
 
     @Transactional
     public void delete(Long id) {
 
-        Coordinates coordinates = repository.findById(id)
-                .orElseThrow(() ->
-                        new RuntimeException(
-                                "Координаты с ID " + id + " не найдены"
-                        )
-                );
+        Coordinates coordinates =
+                getEntityById(id);
 
         repository.delete(coordinates);
+
+        repository.flush();
+    }
+
+
+    // ==========================================
+    // 7. DTO -> ENTITY
+    // ==========================================
+
+    private void fillCoordinates(
+            Coordinates coordinates,
+            CoordinatesForm form
+    ) {
+
+        coordinates.setX(
+                form.getX()
+        );
+
+        coordinates.setY(
+                form.getY()
+        );
+    }
+
+
+    // ==========================================
+    // 8. ENTITY -> DTO
+    // ==========================================
+
+    private CoordinatesForm toForm(
+            Coordinates coordinates
+    ) {
+
+        CoordinatesForm form =
+                new CoordinatesForm();
+
+        form.setId(
+                coordinates.getId()
+        );
+
+        form.setX(
+                coordinates.getX()
+        );
+
+        form.setY(
+                coordinates.getY()
+        );
+
+        return form;
     }
 }

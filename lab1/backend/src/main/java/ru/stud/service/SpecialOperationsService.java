@@ -1,7 +1,10 @@
 package ru.stud.service;
 
+import ru.stud.dto.HumanBeingForm;
+
 import ru.stud.model.HumanBeing;
 import ru.stud.model.Mood;
+
 import ru.stud.repository.HumanBeingRepository;
 
 import org.springframework.stereotype.Service;
@@ -9,89 +12,205 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
+
 import java.util.stream.Collectors;
+
 
 @Service
 public class SpecialOperationsService {
 
     private final HumanBeingRepository repository;
 
-    public SpecialOperationsService(HumanBeingRepository repository) {
+
+    public SpecialOperationsService(
+            HumanBeingRepository repository
+    ) {
         this.repository = repository;
     }
 
-    // 1. Сгруппировать героев по soundtrackName
-    // и вернуть количество элементов в каждой группе
+
+
+    // 1. СГРУППИРОВАТЬ ПО SOUNDTRACK
 
     @Transactional(readOnly = true)
     public Map<String, Long> groupBySoundtrack() {
 
-        List<HumanBeing> heroes = repository.findAll();
+        List<HumanBeing> heroes =
+                repository.findAll();
 
         return heroes.stream()
-                .collect(Collectors.groupingBy(
-                        HumanBeing::getSoundtrackName,
-                        Collectors.counting()
-                ));
+                .collect(
+                        Collectors.groupingBy(
+                                HumanBeing::getSoundtrackName,
+                                Collectors.counting()
+                        )
+                );
     }
 
-    // 2. Найти всех героев, имя которых содержит
-    // заданную подстроку
+
+    // 2. ПОИСК ПО ПОДСТРОКЕ ИМЕНИ
+
 
     @Transactional(readOnly = true)
-    public List<HumanBeing> searchByName(String substring) {
+    public List<HumanBeingForm> searchByName(
+            String substring
+    ) {
 
-        List<HumanBeing> heroes = repository.findAll();
+        List<HumanBeing> heroes =
+                repository.findAll();
 
         return heroes.stream()
+
                 .filter(hero ->
-                        hero.getName().contains(substring)
+                        hero.getName()
+                                .contains(substring)
                 )
-                .collect(Collectors.toList());
+
+                // Entity -> DTO
+                .map(this::toForm)
+
+                .toList();
     }
 
-    // 3. Получить уникальные значения minutesOfWaiting
+
+    // 3. УНИКАЛЬНЫЕ MINUTES OF WAITING
+
 
     @Transactional(readOnly = true)
     public List<Integer> getUniqueWaitingMinutes() {
 
-        List<HumanBeing> heroes = repository.findAll();
+        List<HumanBeing> heroes =
+                repository.findAll();
 
         return heroes.stream()
-                .map(HumanBeing::getMinutesOfWaiting)
+
+                .map(
+                        HumanBeing::getMinutesOfWaiting
+                )
+
                 .distinct()
-                .collect(Collectors.toList());
+
+                .toList();
     }
 
-    // 4. Удалить всех героев без зубочисток
+
+
+    // 4. УДАЛИТЬ ГЕРОЕВ БЕЗ ЗУБОЧИСТОК
+
 
     @Transactional
     public void deleteWithoutToothpick() {
 
-        List<HumanBeing> heroes = repository.findAll();
+        List<HumanBeing> heroes =
+                repository.findAll();
 
-        List<HumanBeing> heroesToDelete = heroes.stream()
-                .filter(hero -> !hero.isHasToothpick())
-                .collect(Collectors.toList());
 
-        repository.deleteAll(heroesToDelete);
+        List<HumanBeing> heroesToDelete =
+                heroes.stream()
+
+                        .filter(hero ->
+                                !hero.isHasToothpick()
+                        )
+
+                        .toList();
+
+
+        repository.deleteAll(
+                heroesToDelete
+        );
+
 
         repository.flush();
     }
 
-    // 5. Установить всем героям максимально
-    // печальное настроение
+
+
+    // 5. УСТАНОВИТЬ ВСЕМ SADNESS
 
     @Transactional
     public void setSadnessForAll() {
 
-        List<HumanBeing> heroes = repository.findAll();
+        List<HumanBeing> heroes =
+                repository.findAll();
+
 
         for (HumanBeing hero : heroes) {
-            hero.setMood(Mood.SADNESS);
+
+            hero.setMood(
+                    Mood.SADNESS
+            );
         }
 
+
         repository.saveAll(heroes);
+    }
+
+
+
+    // 6. ENTITY -> DTO
+
+
+    private HumanBeingForm toForm(
+            HumanBeing hero
+    ) {
+
+        HumanBeingForm form =
+                new HumanBeingForm();
+
+
+        form.setName(
+                hero.getName()
+        );
+
+
+        form.setCoordinatesId(
+                hero.getCoordinates().getId()
+        );
+
+
+        form.setRealHero(
+                hero.isRealHero()
+        );
+
+
+        form.setHasToothpick(
+                hero.isHasToothpick()
+        );
+
+
+        if (hero.getCar() != null) {
+
+            form.setCarId(
+                    hero.getCar().getId()
+            );
+        }
+
+
+        form.setMood(
+                hero.getMood()
+        );
+
+
+        form.setImpactSpeed(
+                hero.getImpactSpeed()
+        );
+
+
+        form.setSoundtrackName(
+                hero.getSoundtrackName()
+        );
+
+
+        form.setMinutesOfWaiting(
+                hero.getMinutesOfWaiting()
+        );
+
+
+        form.setWeaponType(
+                hero.getWeaponType()
+        );
+
+
+        return form;
     }
 }

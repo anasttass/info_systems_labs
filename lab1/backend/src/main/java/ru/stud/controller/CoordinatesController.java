@@ -1,12 +1,16 @@
 package ru.stud.controller;
 
 import jakarta.validation.Valid;
+
 import org.springframework.http.ResponseEntity;
+
 import org.springframework.web.bind.annotation.*;
-import ru.stud.model.Coordinates;
+
+import ru.stud.dto.CoordinatesForm;
 import ru.stud.service.CoordinatesService;
 
 import java.util.List;
+
 
 @RestController
 @RequestMapping("/coordinates")
@@ -14,43 +18,60 @@ public class CoordinatesController {
 
     private final CoordinatesService coordinatesService;
 
-    public CoordinatesController(CoordinatesService coordinatesService) {
+
+    public CoordinatesController(
+            CoordinatesService coordinatesService
+    ) {
         this.coordinatesService = coordinatesService;
     }
 
-    // Получить все координаты
+
     @GetMapping
-    public List<Coordinates> getAll() {
+    public List<CoordinatesForm> getAll() {
+
         return coordinatesService.getAll();
     }
 
-    // Получить координаты по id
+
     @GetMapping("/{id}")
-    public Coordinates getById(@PathVariable Long id) {
+    public CoordinatesForm getById(
+            @PathVariable Long id
+    ) {
+
         return coordinatesService.getById(id);
     }
 
-    // Создать координаты
+
     @PostMapping
-    public Coordinates create(
-            @Valid @RequestBody Coordinates coordinates
+    public CoordinatesForm create(
+            @Valid @RequestBody CoordinatesForm form
     ) {
-        return coordinatesService.create(coordinates);
+
+        return coordinatesService.create(form);
     }
 
-    // Изменить координаты
+
+
     @PutMapping("/{id}")
-    public Coordinates update(
+    public CoordinatesForm update(
             @PathVariable Long id,
-            @Valid @RequestBody Coordinates coordinates
+            @Valid @RequestBody CoordinatesForm form
     ) {
-        return coordinatesService.update(id, coordinates);
+
+        return coordinatesService.update(id, form);
     }
 
-    // Удалить координаты
+
+
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
+    public ResponseEntity<Void> delete(
+            @PathVariable Long id
+    ) {
+
         coordinatesService.delete(id);
-        return ResponseEntity.noContent().build();
+
+        return ResponseEntity
+                .noContent()
+                .build();
     }
 }
