@@ -19,9 +19,7 @@ public class CoordinatesController {
     private final CoordinatesService coordinatesService;
 
 
-    public CoordinatesController(
-            CoordinatesService coordinatesService
-    ) {
+    public CoordinatesController(CoordinatesService coordinatesService) {
         this.coordinatesService = coordinatesService;
     }
 
@@ -34,18 +32,14 @@ public class CoordinatesController {
 
 
     @GetMapping("/{id}")
-    public CoordinatesForm getById(
-            @PathVariable Long id
-    ) {
+    public CoordinatesForm getById(@PathVariable Long id) {
 
         return coordinatesService.getById(id);
     }
 
 
     @PostMapping
-    public CoordinatesForm create(
-            @Valid @RequestBody CoordinatesForm form
-    ) {
+    public CoordinatesForm create(@Valid @RequestBody CoordinatesForm form) {
 
         return coordinatesService.create(form);
     }
@@ -53,10 +47,7 @@ public class CoordinatesController {
 
 
     @PutMapping("/{id}")
-    public CoordinatesForm update(
-            @PathVariable Long id,
-            @Valid @RequestBody CoordinatesForm form
-    ) {
+    public CoordinatesForm update(@PathVariable Long id, @Valid @RequestBody CoordinatesForm form) {
 
         return coordinatesService.update(id, form);
     }
@@ -64,14 +55,10 @@ public class CoordinatesController {
 
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(
-            @PathVariable Long id
-    ) {
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
 
         coordinatesService.delete(id);
 
-        return ResponseEntity
-                .noContent()
-                .build();
+        return ResponseEntity.noContent().build();
     }
 }

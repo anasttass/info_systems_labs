@@ -24,14 +24,10 @@ public class HumanBeingController {
     private final HumanBeingService humanBeingService;
 
 
-    public HumanBeingController(
-            HumanBeingService humanBeingService
-    ) {
+    public HumanBeingController(HumanBeingService humanBeingService) {
         this.humanBeingService = humanBeingService;
     }
 
-
-    // 1. ПОЛУЧИТЬ СТРАНИЦУ ГЕРОЕВ
 
     @GetMapping
     public Page<HumanBeingResponse> getAll(
@@ -51,17 +47,8 @@ public class HumanBeingController {
 
         PageRequest pageable = PageRequest.of(page, size, sort);
 
-        return humanBeingService.getAll(
-                pageable,
-                realHero,
-                hasToothpick,
-                mood,
-                weaponType
-        );
+        return humanBeingService.getAll(pageable, realHero, hasToothpick, mood, weaponType);
     }
-
-
-    // 2. ПОЛУЧИТЬ ОДНОГО ГЕРОЯ
 
 
     @GetMapping("/{id}")
@@ -70,46 +57,23 @@ public class HumanBeingController {
     }
 
 
-    // 3. СОЗДАТЬ ГЕРОЯ
-
-
     @PostMapping
-    public HumanBeingForm create(
-            @Valid @RequestBody HumanBeingForm form
-    ) {
+    public HumanBeingForm create(@Valid @RequestBody HumanBeingForm form) {
 
         return humanBeingService.create(form);
     }
 
-    // 4. ИЗМЕНИТЬ ГЕРОЯ
-
 
     @PutMapping("/{id}")
-    public HumanBeingForm update(
-
-            @PathVariable Long id,
-
-            @Valid @RequestBody HumanBeingForm form
-
-    ) {
+    public HumanBeingForm update(@PathVariable Long id, @Valid @RequestBody HumanBeingForm form) {
 
         return humanBeingService.update(id, form);
     }
 
-
-
-    // 5. УДАЛИТЬ ГЕРОЯ
-
-
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(
-            @PathVariable Long id
-    ) {
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
 
         humanBeingService.delete(id);
-
-        return ResponseEntity
-                .noContent()
-                .build();
+        return ResponseEntity.noContent().build();
     }
 }

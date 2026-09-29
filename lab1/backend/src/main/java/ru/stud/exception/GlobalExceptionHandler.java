@@ -15,15 +15,9 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(ResourceNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public String handleNotFound(
-            ResourceNotFoundException e,
-            Model model
-    ) {
+    public String handleNotFound(ResourceNotFoundException e, Model model) {
 
-        model.addAttribute(
-                "errorMessage",
-                e.getMessage()
-        );
+        model.addAttribute("errorMessage", e.getMessage());
 
         return "error";
     }
@@ -33,15 +27,9 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(ObjectDeletionException.class)
     @ResponseStatus(HttpStatus.CONFLICT)
-    public String handleDeletion(
-            ObjectDeletionException e,
-            Model model
-    ) {
+    public String handleDeletion(ObjectDeletionException e, Model model) {
 
-        model.addAttribute(
-                "errorMessage",
-                e.getMessage()
-        );
+        model.addAttribute("errorMessage", e.getMessage());
 
         return "error";
     }

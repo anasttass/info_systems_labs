@@ -57,7 +57,6 @@ public class HumanBeing {
         creationDate = LocalDate.now();
     }
 
-    // ==================== GETTERS ====================
 
     public Long getId() {
         return id;
@@ -107,7 +106,6 @@ public class HumanBeing {
         return weaponType;
     }
 
-    // ==================== SETTERS ====================
 
     public void setId(Long id) {
         this.id = id;

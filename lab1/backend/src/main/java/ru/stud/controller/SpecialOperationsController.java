@@ -15,9 +15,7 @@ public class SpecialOperationsController {
 
     private final SpecialOperationsService service;
 
-    public SpecialOperationsController(
-            SpecialOperationsService service
-    ) {
+    public SpecialOperationsController(SpecialOperationsService service) {
         this.service = service;
     }
 
@@ -29,9 +27,7 @@ public class SpecialOperationsController {
 
     // 2. Поиск по подстроке имени
     @GetMapping("/search-by-name")
-    public List<HumanBeingResponse> searchByName(
-            @RequestParam String substring
-    ) {
+    public List<HumanBeingResponse> searchByName(@RequestParam String substring) {
         return service.searchByName(substring);
     }
 
