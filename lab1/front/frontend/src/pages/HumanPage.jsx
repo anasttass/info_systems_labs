@@ -1,4 +1,10 @@
-import { useCallback, useEffect, useState } from "react";
+import {
+    useCallback,
+    useEffect,
+    useRef,
+    useState
+} from "react";
+
 import { useNavigate } from "react-router-dom";
 
 import HumanTable from "../components/HumanTable";
@@ -13,7 +19,6 @@ import { getHumans } from "../web-requests/Requester";
 function HumanPage() {
     const [humans, setHumans] = useState([]);
     const navigate = useNavigate();
-
 
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(0);
@@ -32,6 +37,8 @@ function HumanPage() {
 
     const pageSize = 10;
 
+    const loadHumansRef = useRef(null);
+
     const loadHumans = useCallback(async () => {
         try {
             setLoading(true);
@@ -47,22 +54,90 @@ function HumanPage() {
 
             setHumans(data.content ?? []);
             setTotalPages(data.totalPages ?? 0);
+
         } catch (err) {
             console.error(err);
 
             setError(
-                err.message || "Не удалось загрузить данные"
+                err.message ||
+                "Не удалось загрузить данные"
             );
 
             setHumans([]);
+
         } finally {
             setLoading(false);
         }
-    }, [currentPage, sort, filters]);
+
+    }, [
+        currentPage,
+        sort,
+        filters
+    ]);
+
+    useEffect(() => {
+        loadHumansRef.current = loadHumans;
+    }, [loadHumans]);
 
     useEffect(() => {
         loadHumans();
     }, [loadHumans]);
+
+    useEffect(() => {
+        const protocol =
+            window.location.protocol === "https:"
+                ? "wss:"
+                : "ws:";
+
+        const socketUrl =
+            `${protocol}//${window.location.host}` +
+            `/humanbeing/ws/humanbeings`;
+
+        console.log(
+            "Подключение к WebSocket:",
+            socketUrl
+        );
+
+        const socket = new WebSocket(socketUrl);
+
+        socket.onopen = () => {
+            console.log("WebSocket подключён");
+        };
+
+        socket.onmessage = (event) => {
+            console.log(
+                "WebSocket сообщение:",
+                event.data
+            );
+
+            if (
+                event.data ===
+                "HUMAN_BEINGS_CHANGED"
+            ) {
+                loadHumansRef.current?.();
+            }
+        };
+
+        socket.onerror = (event) => {
+            console.error(
+                "WebSocket error:",
+                event
+            );
+        };
+
+        socket.onclose = (event) => {
+            console.log(
+                "WebSocket отключён",
+                event.code,
+                event.reason
+            );
+        };
+
+        return () => {
+            socket.close();
+        };
+
+    }, []);
 
     function handleFilterChange(newFilters) {
         setFilters(newFilters);
@@ -91,10 +166,6 @@ function HumanPage() {
 
     return (
         <div className="human-page">
-
-            {/* =========================
-            HEADER
-        ========================= */}
 
             <div className="page-header">
 
@@ -130,11 +201,6 @@ function HumanPage() {
                 </div>
             </div>
 
-
-            {/* =========================
-            ФИЛЬТРЫ И СОРТИРОВКА
-        ========================= */}
-
             <div className="controls-row">
 
                 <div className="control-card">
@@ -155,11 +221,6 @@ function HumanPage() {
 
             </div>
 
-
-            {/* =========================
-            СПЕЦИАЛЬНЫЕ ОПЕРАЦИИ
-        ========================= */}
-
             <SpecialOperations
                 onResult={
                     handleSpecialResult
@@ -169,32 +230,19 @@ function HumanPage() {
                 }
             />
 
-
-            {/* =========================
-            РЕЗУЛЬТАТ СПЕЦ. ОПЕРАЦИИ
-        ========================= */}
-
             {specialResult && (
                 <SpecialResult
-                    result={specialResult}
+                    result={
+                        specialResult
+                    }
                 />
             )}
-
-
-            {/* =========================
-            ОШИБКА ЗАГРУЗКИ
-        ========================= */}
 
             {error && (
                 <div className="error-message">
                     {error}
                 </div>
             )}
-
-
-            {/* =========================
-            ОСНОВНАЯ ТАБЛИЦА
-        ========================= */}
 
             <div className="table-section">
 
@@ -213,7 +261,9 @@ function HumanPage() {
                 ) : (
 
                     <HumanTable
-                        humans={humans}
+                        humans={
+                            humans
+                        }
                         onDataChanged={
                             loadHumans
                         }
@@ -223,15 +273,14 @@ function HumanPage() {
 
             </div>
 
-
-            {/* =========================
-            ПАГИНАЦИЯ
-        ========================= */}
-
             {!loading && totalPages > 0 && (
                 <Pagination
-                    currentPage={currentPage}
-                    totalPages={totalPages}
+                    currentPage={
+                        currentPage
+                    }
+                    totalPages={
+                        totalPages
+                    }
                     onPageChange={
                         handlePageChange
                     }
@@ -241,4 +290,5 @@ function HumanPage() {
         </div>
     );
 }
+
 export default HumanPage;
