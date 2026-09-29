@@ -258,9 +258,7 @@ export async function getFreeCars() {
 
 
 
-// ============================================================
-// COORDINATES
-// ============================================================
+
 
 // Получить все координаты
 export async function getCoordinates() {
@@ -356,9 +354,6 @@ export async function deleteCoordinates(id) {
 }
 
 
-// ============================================================
-// SPECIAL OPERATIONS
-// ============================================================
 
 // 1. Группировка по soundtrackName
 export async function groupBySoundtrack() {

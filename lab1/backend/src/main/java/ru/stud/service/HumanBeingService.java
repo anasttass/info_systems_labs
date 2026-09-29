@@ -195,7 +195,7 @@ public class HumanBeingService {
     public void delete(Long id) {
 
         HumanBeing hero = getEntityById(id);
-        
+
         try {
 
             humanBeingRepository.delete(hero);
