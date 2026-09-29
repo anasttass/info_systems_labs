@@ -1,8 +1,10 @@
 package ru.stud.service;
 
+import org.springframework.context.ApplicationEventPublisher;
 import ru.stud.dto.CoordinatesForm;
 
 import ru.stud.dto.ErrorCode;
+import ru.stud.event.HumanBeingChangedEvent;
 import ru.stud.exception.ResourceNotFoundException;
 
 import ru.stud.model.Coordinates;
@@ -19,10 +21,12 @@ import java.util.List;
 public class CoordinatesService {
 
     private final CoordinatesRepository repository;
+    private final ApplicationEventPublisher eventPublisher;
 
 
-    public CoordinatesService(CoordinatesRepository repository) {
+    public CoordinatesService(CoordinatesRepository repository, ApplicationEventPublisher eventPublisher) {
         this.repository = repository;
+        this.eventPublisher = eventPublisher;
     }
 
 
@@ -56,6 +60,7 @@ public class CoordinatesService {
         fillCoordinates(coordinates, form);
 
         Coordinates savedCoordinates = repository.save(coordinates);
+        eventPublisher.publishEvent(new HumanBeingChangedEvent());
         return toForm(savedCoordinates);
     }
 
@@ -65,9 +70,9 @@ public class CoordinatesService {
 
         Coordinates existingCoordinates = getEntityById(id);
         fillCoordinates(existingCoordinates, form);
-        Coordinates savedCoordinates = repository.save(existingCoordinates);
+        eventPublisher.publishEvent(new HumanBeingChangedEvent());
 
-        return toForm(savedCoordinates);
+        return toForm(existingCoordinates);
     }
 
 
@@ -76,6 +81,7 @@ public class CoordinatesService {
 
         Coordinates coordinates = getEntityById(id);
         repository.delete(coordinates);
+        eventPublisher.publishEvent(new HumanBeingChangedEvent());
 
         repository.flush();
     }

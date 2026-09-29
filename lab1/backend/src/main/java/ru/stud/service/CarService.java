@@ -1,8 +1,10 @@
 package ru.stud.service;
 
+import org.springframework.context.ApplicationEventPublisher;
 import ru.stud.dto.CarForm;
 
 import ru.stud.dto.ErrorCode;
+import ru.stud.event.HumanBeingChangedEvent;
 import ru.stud.exception.ObjectDeletionException;
 import ru.stud.exception.ResourceNotFoundException;
 
@@ -25,11 +27,13 @@ public class CarService {
 
     private final CarRepository repository;
     private final HumanBeingRepository humanBeingRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
 
-    public CarService(CarRepository repository, HumanBeingRepository humanBeingRepository) {
+    public CarService(CarRepository repository, HumanBeingRepository humanBeingRepository, ApplicationEventPublisher eventPublisher) {
         this.repository = repository;
         this.humanBeingRepository = humanBeingRepository;
+        this.eventPublisher = eventPublisher;
     }
 
 
@@ -63,6 +67,9 @@ public class CarService {
         Car car = new Car();
         fillCar(car, form);
         Car savedCar = repository.save(car);
+        eventPublisher.publishEvent(
+                new HumanBeingChangedEvent()
+        );
         return toForm(savedCar);
     }
 
@@ -74,9 +81,11 @@ public class CarService {
 
         fillCar(existingCar, form);
 
-        Car savedCar = repository.save(existingCar);
+        eventPublisher.publishEvent(
+                new HumanBeingChangedEvent()
+        );
 
-        return toForm(savedCar);
+        return toForm(existingCar);
     }
 
 
@@ -87,7 +96,9 @@ public class CarService {
         if (humanBeingRepository.existsByCarId(id)) {
             throw new ObjectDeletionException(ErrorCode.CAR_DELETE_FORBIDDEN,"Невозможно удалить автомобиль с ID " + id + ": он принадлежит HumanBeing");
         }
-
+        eventPublisher.publishEvent(
+                new HumanBeingChangedEvent()
+        );
         repository.delete(car);
         repository.flush();
     }

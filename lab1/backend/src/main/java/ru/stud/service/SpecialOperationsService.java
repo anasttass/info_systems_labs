@@ -1,8 +1,10 @@
 package ru.stud.service;
 
+import org.springframework.context.ApplicationEventPublisher;
 import ru.stud.dto.HumanBeingForm;
 
 import ru.stud.dto.HumanBeingResponse;
+import ru.stud.event.HumanBeingChangedEvent;
 import ru.stud.model.HumanBeing;
 import ru.stud.model.Mood;
 
@@ -21,12 +23,15 @@ import java.util.stream.Collectors;
 public class SpecialOperationsService {
 
     private final HumanBeingRepository repository;
+    private final ApplicationEventPublisher eventPublisher;
 
 
     public SpecialOperationsService(
-            HumanBeingRepository repository
+            HumanBeingRepository repository,
+            ApplicationEventPublisher eventPublisher
     ) {
         this.repository = repository;
+        this.eventPublisher = eventPublisher;
     }
 
 
@@ -38,6 +43,9 @@ public class SpecialOperationsService {
 
         List<HumanBeing> heroes =
                 repository.findAll();
+        eventPublisher.publishEvent(
+                new HumanBeingChangedEvent()
+        );
 
         return heroes.stream()
                 .collect(
@@ -59,6 +67,9 @@ public class SpecialOperationsService {
         List<HumanBeing> heroes =
                 repository.findAll();
 
+        eventPublisher.publishEvent(
+                new HumanBeingChangedEvent()
+        );
         return heroes.stream()
 
                 .filter(hero ->
@@ -80,6 +91,9 @@ public class SpecialOperationsService {
 
         List<HumanBeing> heroes =
                 repository.findAll();
+        eventPublisher.publishEvent(
+                new HumanBeingChangedEvent()
+        );
 
         return heroes.stream()
 
@@ -117,6 +131,9 @@ public class SpecialOperationsService {
         repository.deleteAll(
                 heroesToDelete
         );
+        eventPublisher.publishEvent(
+                new HumanBeingChangedEvent()
+        );
 
 
         repository.flush();
@@ -142,6 +159,9 @@ public class SpecialOperationsService {
 
 
         repository.saveAll(heroes);
+        eventPublisher.publishEvent(
+                new HumanBeingChangedEvent()
+        );
     }
 
 

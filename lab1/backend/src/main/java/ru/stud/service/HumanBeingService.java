@@ -1,9 +1,11 @@
 package ru.stud.service;
 
 import ru.stud.dto.ErrorCode;
+import org.springframework.context.ApplicationEventPublisher;
 import ru.stud.dto.HumanBeingForm;
 
 import ru.stud.dto.HumanBeingResponse;
+import ru.stud.event.HumanBeingChangedEvent;
 import ru.stud.model.Car;
 import ru.stud.model.Coordinates;
 import ru.stud.model.HumanBeing;
@@ -24,6 +26,7 @@ import org.springframework.data.domain.Pageable;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.stud.websocket.HumanBeingWebSocketHandler;
 
 import java.util.List;
 
@@ -34,16 +37,21 @@ public class HumanBeingService {
     private final HumanBeingRepository humanBeingRepository;
     private final CoordinatesRepository coordinatesRepository;
     private final CarRepository carRepository;
-
+    private final HumanBeingWebSocketHandler webSocketHandler;
+    private final ApplicationEventPublisher eventPublisher;
 
     public HumanBeingService(
             HumanBeingRepository humanBeingRepository,
             CoordinatesRepository coordinatesRepository,
-            CarRepository carRepository
+            CarRepository carRepository,
+            HumanBeingWebSocketHandler webSocketHandler,
+            ApplicationEventPublisher eventPublisher
     ) {
         this.humanBeingRepository = humanBeingRepository;
         this.coordinatesRepository = coordinatesRepository;
         this.carRepository = carRepository;
+        this.webSocketHandler = webSocketHandler;
+        this.eventPublisher = eventPublisher;
     }
 
 
@@ -92,25 +100,27 @@ public class HumanBeingService {
 
         //Repository работает только с Entity
         HumanBeing savedHero = humanBeingRepository.save(hero);
-
+        eventPublisher.publishEvent(
+                new HumanBeingChangedEvent()
+        );
         //Наружу возвращаем DTO
         return toForm(savedHero);
+
+
     }
 
 
     @Transactional
     public HumanBeingForm update(Long id, HumanBeingForm form) {
-
-        // Получаем Entity из БД
         HumanBeing hero = getEntityById(id);
 
         fillHumanBeing(hero, form, id);
 
-        // Сохраняем Entity
-        HumanBeing savedHero = humanBeingRepository.save(hero);
+        eventPublisher.publishEvent(
+                new HumanBeingChangedEvent()
+        );
 
-        // Возвращаем DTO
-        return toForm(savedHero);
+        return toForm(hero);
     }
 
 
@@ -143,7 +153,7 @@ public class HumanBeingService {
         }
 
 
-        //Заполняем Entity данными из DTO
+        // mapper
         hero.setName(form.getName());
         hero.setCoordinates(coordinates);
         hero.setRealHero(form.getRealHero());
@@ -201,12 +211,16 @@ public class HumanBeingService {
 
             humanBeingRepository.delete(hero);
             humanBeingRepository.flush();
+            eventPublisher.publishEvent(
+                    new HumanBeingChangedEvent()
+            );
 
         } catch (DataIntegrityViolationException e) {
 
             throw new ObjectDeletionException(ErrorCode.HUMAN_DELETE_FORBIDDEN,"Невозможно удалить героя с ID " + id + ", поскольку с ним связаны другие объекты");
         }
     }
+    //mapper
     private HumanBeingResponse toResponse(HumanBeing humanBeing) {
 
         HumanBeingResponse response = new HumanBeingResponse();
