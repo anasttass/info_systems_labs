@@ -1,5 +1,6 @@
 package ru.stud.service;
 
+import ru.stud.dto.ErrorCode;
 import ru.stud.dto.HumanBeingForm;
 
 import ru.stud.dto.HumanBeingResponse;
@@ -75,7 +76,7 @@ public class HumanBeingService {
     private HumanBeing getEntityById(Long id) {
 
         return humanBeingRepository.findById(id).orElseThrow(() ->
-                        new ResourceNotFoundException("Герой с ID " + id + " не найден")
+                        new ResourceNotFoundException(ErrorCode.HUMAN_NOT_FOUND,"Герой с ID " + id + " не найден")
                 );
     }
 
@@ -117,14 +118,14 @@ public class HumanBeingService {
     private void fillHumanBeing(HumanBeing hero, HumanBeingForm form, Long currentHumanId) {
 
         Coordinates coordinates = coordinatesRepository.findById(form.getCoordinatesId()).orElseThrow(() ->
-                        new ResourceNotFoundException("Координаты с ID " + form.getCoordinatesId() + " не найдены")
+                        new ResourceNotFoundException(ErrorCode.COORDINATES_NOT_FOUND,"Координаты с ID " + form.getCoordinatesId() + " не найдены")
                 );
 
         Car car = null;
 
         if (form.getCarId() != null) {
             car = carRepository.findById(form.getCarId()).orElseThrow(() ->
-                    new ResourceNotFoundException("Автомобиль с ID " + form.getCarId() + " не найден"
+                    new ResourceNotFoundException(ErrorCode.CAR_NOT_FOUND,"Автомобиль с ID " + form.getCarId() + " не найден"
                     )
             );
 
@@ -203,7 +204,7 @@ public class HumanBeingService {
 
         } catch (DataIntegrityViolationException e) {
 
-            throw new ObjectDeletionException("Невозможно удалить героя с ID " + id + ", поскольку с ним связаны другие объекты");
+            throw new ObjectDeletionException(ErrorCode.HUMAN_DELETE_FORBIDDEN,"Невозможно удалить героя с ID " + id + ", поскольку с ним связаны другие объекты");
         }
     }
     private HumanBeingResponse toResponse(HumanBeing humanBeing) {

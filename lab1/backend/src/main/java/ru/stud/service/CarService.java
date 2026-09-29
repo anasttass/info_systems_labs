@@ -2,6 +2,7 @@ package ru.stud.service;
 
 import ru.stud.dto.CarForm;
 
+import ru.stud.dto.ErrorCode;
 import ru.stud.exception.ObjectDeletionException;
 import ru.stud.exception.ResourceNotFoundException;
 
@@ -52,7 +53,7 @@ public class CarService {
 
     private Car getEntityById(Long id) {
 
-        return repository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Автомобиль с ID " + id + " не найден"));
+        return repository.findById(id).orElseThrow(() -> new ResourceNotFoundException(ErrorCode.CAR_NOT_FOUND,"Автомобиль с ID " + id + " не найден"));
     }
 
 
@@ -84,7 +85,7 @@ public class CarService {
 
         Car car = getEntityById(id);
         if (humanBeingRepository.existsByCarId(id)) {
-            throw new ObjectDeletionException("Невозможно удалить автомобиль с ID " + id + ": он принадлежит HumanBeing");
+            throw new ObjectDeletionException(ErrorCode.CAR_DELETE_FORBIDDEN,"Невозможно удалить автомобиль с ID " + id + ": он принадлежит HumanBeing");
         }
 
         repository.delete(car);

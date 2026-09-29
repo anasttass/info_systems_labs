@@ -1,36 +1,26 @@
 package ru.stud.exception;
 
-import org.springframework.ui.Model;
-
-import org.springframework.web.bind.annotation.ControllerAdvice;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+import ru.stud.dto.ErrorMessage;
 
-@ControllerAdvice
+@RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    // Объект не найден
-
     @ExceptionHandler(ResourceNotFoundException.class)
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    public String handleNotFound(ResourceNotFoundException e, Model model) {
+    public ResponseEntity<ErrorMessage> handleNotFound(ResourceNotFoundException e) {
+        ErrorMessage error = new ErrorMessage(e.getErrorCode(), e.getMessage());
 
-        model.addAttribute("errorMessage", e.getMessage());
-
-        return "error";
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
     }
-
-
-    // Невозможно удалить объект
 
     @ExceptionHandler(ObjectDeletionException.class)
-    @ResponseStatus(HttpStatus.CONFLICT)
-    public String handleDeletion(ObjectDeletionException e, Model model) {
+    public ResponseEntity<ErrorMessage> handleDeletion(ObjectDeletionException e) {
+        ErrorMessage error = new ErrorMessage(e.getErrorCode(), e.getMessage());
 
-        model.addAttribute("errorMessage", e.getMessage());
-
-        return "error";
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
     }
+
 }

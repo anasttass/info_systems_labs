@@ -2,6 +2,7 @@ package ru.stud.service;
 
 import ru.stud.dto.CoordinatesForm;
 
+import ru.stud.dto.ErrorCode;
 import ru.stud.exception.ResourceNotFoundException;
 
 import ru.stud.model.Coordinates;
@@ -43,7 +44,7 @@ public class CoordinatesService {
     private Coordinates getEntityById(Long id) {
 
         return repository.findById(id).orElseThrow(() ->
-                        new ResourceNotFoundException("Координаты с ID " + id + " не найдены")
+                        new ResourceNotFoundException(ErrorCode.COORDINATES_NOT_FOUND,"Координаты с ID " + id + " не найдены")
                 );
     }
 
