@@ -13,6 +13,7 @@ import ru.stud.repository.CoordinatesRepository;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.stud.util.CoordinatesMapper;
 
 import java.util.List;
 
@@ -22,11 +23,13 @@ public class CoordinatesService {
 
     private final CoordinatesRepository repository;
     private final ApplicationEventPublisher eventPublisher;
+    private final CoordinatesMapper coordinatesMapper;
 
 
-    public CoordinatesService(CoordinatesRepository repository, ApplicationEventPublisher eventPublisher) {
+    public CoordinatesService(CoordinatesRepository repository, ApplicationEventPublisher eventPublisher, CoordinatesMapper coordinatesMapper) {
         this.repository = repository;
         this.eventPublisher = eventPublisher;
+        this.coordinatesMapper = coordinatesMapper;
     }
 
 
@@ -57,7 +60,7 @@ public class CoordinatesService {
     public CoordinatesForm create(CoordinatesForm form) {
 
         Coordinates coordinates = new Coordinates();
-        fillCoordinates(coordinates, form);
+        fillCoordinates(form);
 
         Coordinates savedCoordinates = repository.save(coordinates);
         eventPublisher.publishEvent(new HumanBeingChangedEvent());
@@ -69,7 +72,7 @@ public class CoordinatesService {
     public CoordinatesForm update(Long id, CoordinatesForm form) {
 
         Coordinates existingCoordinates = getEntityById(id);
-        fillCoordinates(existingCoordinates, form);
+        fillCoordinates(form);
         eventPublisher.publishEvent(new HumanBeingChangedEvent());
 
         return toForm(existingCoordinates);
@@ -87,19 +90,12 @@ public class CoordinatesService {
     }
 
 
-    private void fillCoordinates(Coordinates coordinates, CoordinatesForm form) {
-        coordinates.setX(form.getX());
-        coordinates.setY(form.getY());
+    private void fillCoordinates(CoordinatesForm form) {
+       coordinatesMapper.toEntity(form);
     }
 
 
     private CoordinatesForm toForm(Coordinates coordinates) {
-
-        CoordinatesForm form = new CoordinatesForm();
-        form.setId(coordinates.getId());
-        form.setX(coordinates.getX());
-        form.setY(coordinates.getY());
-
-        return form;
+        return coordinatesMapper.toForm( coordinates);
     }
 }

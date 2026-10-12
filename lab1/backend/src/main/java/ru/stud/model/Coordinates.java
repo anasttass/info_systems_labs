@@ -2,6 +2,10 @@ package ru.stud.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.DecimalMax;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.Getter;
+
 
 @Entity
 @Table(name="coordinates")

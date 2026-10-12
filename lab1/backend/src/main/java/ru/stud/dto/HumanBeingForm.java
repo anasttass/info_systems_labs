@@ -4,6 +4,12 @@ import jakarta.validation.constraints.*;
 
 import ru.stud.model.Mood;
 import ru.stud.model.WeaponType;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.Getter;
+
+@Getter
+@Setter
 
 public class HumanBeingForm {
 
@@ -39,87 +45,5 @@ public class HumanBeingForm {
     @NotNull(message = "Выберите оружие")
     private WeaponType weaponType;
 
-    // GETTERS
 
-    public String getName() {
-        return name;
-    }
-
-    public Long getCoordinatesId() {
-        return coordinatesId;
-    }
-
-    public Boolean getRealHero() {
-        return realHero;
-    }
-
-    public Boolean getHasToothpick() {
-        return hasToothpick;
-    }
-
-    public Long getCarId() {
-        return carId;
-    }
-
-    public Mood getMood() {
-        return mood;
-    }
-
-    public Double getImpactSpeed() {
-        return impactSpeed;
-    }
-
-    public String getSoundtrackName() {
-        return soundtrackName;
-    }
-
-    public Integer getMinutesOfWaiting() {
-        return minutesOfWaiting;
-    }
-
-    public WeaponType getWeaponType() {
-        return weaponType;
-    }
-
-    // SETTERS
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public void setCoordinatesId(Long coordinatesId) {
-        this.coordinatesId = coordinatesId;
-    }
-
-    public void setRealHero(Boolean realHero) {
-        this.realHero = realHero;
-    }
-
-    public void setHasToothpick(Boolean hasToothpick) {
-        this.hasToothpick = hasToothpick;
-    }
-
-    public void setCarId(Long carId) {
-        this.carId = carId;
-    }
-
-    public void setMood(Mood mood) {
-        this.mood = mood;
-    }
-
-    public void setImpactSpeed(Double impactSpeed) {
-        this.impactSpeed = impactSpeed;
-    }
-
-    public void setSoundtrackName(String soundtrackName) {
-        this.soundtrackName = soundtrackName;
-    }
-
-    public void setMinutesOfWaiting(Integer minutesOfWaiting) {
-        this.minutesOfWaiting = minutesOfWaiting;
-    }
-
-    public void setWeaponType(WeaponType weaponType) {
-        this.weaponType = weaponType;
-    }
 }

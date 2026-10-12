@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import ru.stud.util.CarMapper;
 
 
 @Service
@@ -28,12 +29,14 @@ public class CarService {
     private final CarRepository repository;
     private final HumanBeingRepository humanBeingRepository;
     private final ApplicationEventPublisher eventPublisher;
+    private final CarMapper carMapper;
 
 
-    public CarService(CarRepository repository, HumanBeingRepository humanBeingRepository, ApplicationEventPublisher eventPublisher) {
+    public CarService(CarRepository repository, HumanBeingRepository humanBeingRepository, ApplicationEventPublisher eventPublisher, CarMapper carMapper) {
         this.repository = repository;
         this.humanBeingRepository = humanBeingRepository;
         this.eventPublisher = eventPublisher;
+        this.carMapper = carMapper;
     }
 
 
@@ -117,10 +120,7 @@ public class CarService {
 
     // ENTITY -> DTO
     private CarForm toForm(Car car) {
-        CarForm form = new CarForm();
-        form.setId(car.getId());
-        form.setCool(car.getCool());
 
-        return form;
+        return carMapper.toForm(car);
     }
 }

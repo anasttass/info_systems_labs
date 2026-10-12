@@ -4,49 +4,74 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.DecimalMax;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.Getter;
 
 @Entity
 @Table(name = "humanbeing")
 public class HumanBeing {
 
+    @Setter
+    @Getter
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Setter
+    @Getter
     @Column(nullable = false)
     private String name;
 
+    @Setter
+    @Getter
     @ManyToOne
     @JoinColumn(name = "coordinates_id", nullable = false)
     private Coordinates coordinates;
 
+    @Setter
+    @Getter
     @Column(nullable = false, updatable = false)
     private LocalDate creationDate;
 
     @Column(nullable = false)
     private Boolean realHero;
 
+    @Setter
+    @Getter
     @Column
     private boolean hasToothpick;
 
+    @Setter
+    @Getter
     @OneToOne
     @JoinColumn(name = "car_id", nullable = true,unique = true)
     private Car car;
 
+    @Getter
+    @Setter
     @Column(nullable = true)
     @Enumerated(EnumType.STRING)
     private Mood mood;
 
+    @Setter
+    @Getter
     @Column
     @DecimalMax(value = "357")
     private double impactSpeed;
 
+    @Setter
+    @Getter
     @Column(nullable = false)
     private String soundtrackName;
 
+    @Setter
+    @Getter
     @Column
     private int minutesOfWaiting;
 
+    @Setter
+    @Getter
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private WeaponType weaponType;
@@ -58,100 +83,13 @@ public class HumanBeing {
     }
 
 
-    public Long getId() {
-        return id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public Coordinates getCoordinates() {
-        return coordinates;
-    }
-
-    public LocalDate getCreationDate() {
-        return creationDate;
-    }
-
     public boolean isRealHero() {
         return realHero;
     }
 
-    public boolean isHasToothpick() {
-        return hasToothpick;
-    }
-
-    public Car getCar() {
-        return car;
-    }
-
-    public Mood getMood() {
-        return mood;
-    }
-
-    public double getImpactSpeed() {
-        return impactSpeed;
-    }
-
-    public String getSoundtrackName() {
-        return soundtrackName;
-    }
-
-    public int getMinutesOfWaiting() {
-        return minutesOfWaiting;
-    }
-
-    public WeaponType getWeaponType() {
-        return weaponType;
-    }
-
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public void setCoordinates(Coordinates coordinates) {
-        this.coordinates = coordinates;
-    }
-
-    public void setCreationDate(LocalDate creationDate) {
-        this.creationDate = creationDate;
-    }
 
     public void setRealHero(boolean realHero) {
         this.realHero = realHero;
     }
 
-    public void setHasToothpick(boolean hasToothpick) {
-        this.hasToothpick = hasToothpick;
-    }
-
-    public void setCar(Car car) {
-        this.car = car;
-    }
-
-    public void setMood(Mood mood) {
-        this.mood = mood;
-    }
-
-    public void setImpactSpeed(double impactSpeed) {
-        this.impactSpeed = impactSpeed;
-    }
-
-    public void setSoundtrackName(String soundtrackName) {
-        this.soundtrackName = soundtrackName;
-    }
-
-    public void setMinutesOfWaiting(int minutesOfWaiting) {
-        this.minutesOfWaiting = minutesOfWaiting;
-    }
-
-    public void setWeaponType(WeaponType weaponType) {
-        this.weaponType = weaponType;
-    }
 }

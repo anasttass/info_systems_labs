@@ -1,5 +1,9 @@
 package ru.stud.dto;
+import lombok.AllArgsConstructor;
+import lombok.Setter;
+import lombok.Getter;
 
+@AllArgsConstructor
 public class ErrorMessage {
     private String message;
     private ErrorCode error_code;

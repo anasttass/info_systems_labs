@@ -1,6 +1,13 @@
 package ru.stud.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.Getter;
+
+@Getter
+@Setter
 
 @Entity
 @Table(name = "car")
@@ -13,23 +20,8 @@ public class Car {
     @Column(nullable = true)
     private boolean cool;
 
-    public Long getId() {
-        return id;
-    }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public void setCool(boolean cool) {
-        this.cool = cool;
-    }
-
-    public boolean isCool() {
-        return cool;
-    }
-
-    public boolean getCool() {
+    public @NotNull Boolean getCool() {
         return cool;
     }
 }

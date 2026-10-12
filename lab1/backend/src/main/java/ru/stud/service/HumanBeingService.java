@@ -27,6 +27,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.stud.websocket.HumanBeingWebSocketHandler;
+import ru.stud.util.HumanBeingMapper;
 
 import java.util.List;
 
@@ -39,19 +40,21 @@ public class HumanBeingService {
     private final CarRepository carRepository;
     private final HumanBeingWebSocketHandler webSocketHandler;
     private final ApplicationEventPublisher eventPublisher;
+    private final HumanBeingMapper humanBeingMapper;
 
     public HumanBeingService(
             HumanBeingRepository humanBeingRepository,
             CoordinatesRepository coordinatesRepository,
             CarRepository carRepository,
             HumanBeingWebSocketHandler webSocketHandler,
-            ApplicationEventPublisher eventPublisher
+            ApplicationEventPublisher eventPublisher, HumanBeingMapper humanBeingMapper
     ) {
         this.humanBeingRepository = humanBeingRepository;
         this.coordinatesRepository = coordinatesRepository;
         this.carRepository = carRepository;
         this.webSocketHandler = webSocketHandler;
         this.eventPublisher = eventPublisher;
+        this.humanBeingMapper = humanBeingMapper;
     }
 
 
@@ -151,54 +154,16 @@ public class HumanBeingService {
                 throw new IllegalStateException("Автомобиль с ID " + form.getCarId() + " уже принадлежит другому HumanBeing");
             }
         }
+        humanBeingMapper.toEntity(form);
 
-
-        // mapper
-        hero.setName(form.getName());
-        hero.setCoordinates(coordinates);
-        hero.setRealHero(form.getRealHero());
-        hero.setHasToothpick(form.getHasToothpick());
-        hero.setCar(car);
-        hero.setMood(form.getMood());
-        hero.setImpactSpeed(form.getImpactSpeed());
-        hero.setSoundtrackName(form.getSoundtrackName());
-        hero.setMinutesOfWaiting(form.getMinutesOfWaiting());
-        hero.setWeaponType(form.getWeaponType());
     }
 
 
 
-    //ENTITY -> DTO
+
 
     private HumanBeingForm toForm(HumanBeing hero) {
-
-        HumanBeingForm form = new HumanBeingForm();
-
-        form.setName(hero.getName());
-
-
-        // Entity -> ID
-        form.setCoordinatesId(hero.getCoordinates().getId());
-        form.setRealHero(hero.isRealHero());
-        form.setHasToothpick(hero.isHasToothpick());
-
-
-        // Car может отсутствовать
-        if (hero.getCar() != null) {
-            form.setCarId(hero.getCar().getId());
-        }
-
-        form.setMood(hero.getMood());
-
-        form.setImpactSpeed(hero.getImpactSpeed());
-
-        form.setSoundtrackName(hero.getSoundtrackName());
-
-        form.setMinutesOfWaiting(hero.getMinutesOfWaiting());
-
-        form.setWeaponType(hero.getWeaponType());
-
-        return form;
+        return humanBeingMapper.toForm(hero);
     }
 
 
@@ -220,24 +185,9 @@ public class HumanBeingService {
             throw new ObjectDeletionException(ErrorCode.HUMAN_DELETE_FORBIDDEN,"Невозможно удалить героя с ID " + id + ", поскольку с ним связаны другие объекты");
         }
     }
-    //mapper
+
     private HumanBeingResponse toResponse(HumanBeing humanBeing) {
 
-        HumanBeingResponse response = new HumanBeingResponse();
-
-        response.setId(humanBeing.getId());
-        response.setName(humanBeing.getName());
-        response.setCoordinates(humanBeing.getCoordinates());
-        response.setCreationDate(humanBeing.getCreationDate());
-        response.setRealHero(humanBeing.isRealHero());
-        response.setHasToothpick(humanBeing.isHasToothpick());
-        response.setCar(humanBeing.getCar());
-        response.setMood(humanBeing.getMood());
-        response.setImpactSpeed(humanBeing.getImpactSpeed());
-        response.setSoundtrackName(humanBeing.getSoundtrackName());
-        response.setMinutesOfWaiting(humanBeing.getMinutesOfWaiting());
-        response.setWeaponType(humanBeing.getWeaponType());
-
-        return response;
+        return humanBeingMapper.toResponse(humanBeing);
     }
 }

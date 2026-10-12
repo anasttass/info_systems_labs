@@ -61,7 +61,6 @@ public class CarController {
         return carService.getAvailableCars();
     }
 
-
     @GetMapping("/page")
     public Page<CarForm> getPage(@RequestParam(defaultValue = "0") int page,
                                  @RequestParam(defaultValue = "5") int size) {
