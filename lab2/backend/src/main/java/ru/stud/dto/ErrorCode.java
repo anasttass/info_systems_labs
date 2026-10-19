@@ -1,0 +1,16 @@
+package ru.stud.dto;
+
+public enum ErrorCode {
+    HUMAN_NOT_FOUND,
+    HUMAN_DELETE_FORBIDDEN,
+
+    CAR_NOT_FOUND,
+    CAR_DELETE_FORBIDDEN,
+
+    COORDINATES_NOT_FOUND,
+
+    VALIDATION_ERROR,
+    INTERNAL_ERROR
+
+}
+
