@@ -14,7 +14,7 @@ public class LoadingRecord {
     @GeneratedValue
     private Long id;
 
-    @Column
+
     @JoinColumn(name = "user_id")
     @ManyToOne
     private User creator;

@@ -13,6 +13,7 @@ import FilterPanel from "../components/FilterPanel";
 import SortPanel from "../components/SortPanel";
 import SpecialOperations from "../components/SpecialOperations";
 import SpecialResult from "../components/SpecialResult.jsx";
+import { clearAuth } from "../web-requests/Auth";
 
 import { getHumans } from "../web-requests/Requester";
 
@@ -153,6 +154,11 @@ function HumanPage() {
         setCurrentPage(page);
     }
 
+    function handleLogout() {
+        clearAuth();
+        navigate("/login");
+    }
+
     function handleSpecialResult(result) {
         setSpecialResult(result);
 
@@ -192,10 +198,18 @@ function HumanPage() {
                         type="button"
                         className="secondary-button"
                         onClick={() =>
-                            navigate("/cars")
+                            navigate("/cars-page")
                         }
                     >
                         Все машины
+                    </button>
+
+                    <button
+                        type="button"
+                        className="secondary-button"
+                        onClick={handleLogout}
+                    >
+                        Выйти
                     </button>
 
                 </div>

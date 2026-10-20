@@ -1,13 +1,17 @@
 package ru.stud.service;
 
+import lombok.Setter;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.stud.config.PasswordConfig;
 import ru.stud.dto.UserForm;
 import ru.stud.model.User;
+import ru.stud.model.UserRoles;
 import ru.stud.repository.UserRepository;
 import ru.stud.util.UserMapper;
 
+@Service
 public class UserService {
     UserMapper userMapper;
     PasswordEncoder passwordEncoder;
@@ -30,6 +34,7 @@ public class UserService {
 
         User user = userMapper.toEntity(userForm);
         user.setPassword(passwordEncoder.encode(userForm.getPassword()));
+        user.setRole(UserRoles.GENERAL);
 
         userRepository.save(user);
     }

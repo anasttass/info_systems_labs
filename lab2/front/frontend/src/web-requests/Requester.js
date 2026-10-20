@@ -1,3 +1,5 @@
+import { getToken, clearAuth } from "./Auth";
+
 const CONTEXT_PATH = "/humanbeing";
 
 const API_URL = `${window.location.origin}${CONTEXT_PATH}`;
@@ -6,6 +8,7 @@ const HUMAN_API_URL = `${API_URL}/humanbeings`;
 const CAR_API_URL = `${API_URL}/cars`;
 const COORDINATES_API_URL = `${API_URL}/coordinates`;
 const SPECIAL_API_URL = `${API_URL}/special`;
+const AUTH_API_URL = `${API_URL}/auth`;
 
 
 // ============================================================
@@ -32,6 +35,38 @@ async function checkResponse(response, defaultMessage) {
     }
 
     throw new Error(message);
+}
+
+// ============================================================
+// FETCH С ТОКЕНОМ
+// ============================================================
+
+async function authFetch(url, options = {}) {
+
+    const token = getToken();
+
+    const headers = {
+        ...(options.headers ?? {})
+    };
+
+    if (token) {
+        headers.Authorization = `Bearer ${token}`;
+    }
+
+    const response = await fetch(url, {
+        ...options,
+        headers
+    });
+
+    // токен истёк или недействителен
+    if (response.status === 401) {
+
+        clearAuth();
+
+        window.location.href = `${CONTEXT_PATH}/`;
+    }
+
+    return response;
 }
 
 
@@ -64,7 +99,7 @@ export async function getHumans(
         }
     });
 
-    const response = await fetch(
+    const response = await authFetch(
         `${HUMAN_API_URL}?${params.toString()}`
     );
 
@@ -79,7 +114,7 @@ export async function getHumans(
 
 // Получить одного человека по ID
 export async function getHuman(id) {
-    const response = await fetch(
+    const response = await authFetch(
         `${HUMAN_API_URL}/${id}`
     );
 
@@ -94,7 +129,7 @@ export async function getHuman(id) {
 
 // Создать человека
 export async function createHuman(human) {
-    const response = await fetch(HUMAN_API_URL, {
+    const response = await authFetch(HUMAN_API_URL, {
         method: "POST",
 
         headers: {
@@ -115,7 +150,7 @@ export async function createHuman(human) {
 
 // Обновить человека
 export async function updateHuman(id, human) {
-    const response = await fetch(
+    const response = await authFetch(
         `${HUMAN_API_URL}/${id}`,
         {
             method: "PUT",
@@ -139,7 +174,7 @@ export async function updateHuman(id, human) {
 
 // Удалить человека
 export async function deleteHuman(id) {
-    const response = await fetch(
+    const response = await authFetch(
         `${HUMAN_API_URL}/${id}`,
         {
             method: "DELETE"
@@ -159,7 +194,7 @@ export async function deleteHuman(id) {
 
 // Получить все автомобили
 export async function getCars() {
-    const response = await fetch(CAR_API_URL);
+    const response = await authFetch(CAR_API_URL);
 
     await checkResponse(
         response,
@@ -172,7 +207,7 @@ export async function getCars() {
 
 // Получить автомобиль по ID
 export async function getCar(id) {
-    const response = await fetch(
+    const response = await authFetch(
         `${CAR_API_URL}/${id}`
     );
 
@@ -187,7 +222,7 @@ export async function getCar(id) {
 
 // Создать автомобиль
 export async function createCar(car) {
-    const response = await fetch(CAR_API_URL, {
+    const response = await authFetch(CAR_API_URL, {
         method: "POST",
 
         headers: {
@@ -208,7 +243,7 @@ export async function createCar(car) {
 
 // Обновить автомобиль
 export async function updateCar(id, car) {
-    const response = await fetch(
+    const response = await authFetch(
         `${CAR_API_URL}/${id}`,
         {
             method: "PUT",
@@ -232,7 +267,7 @@ export async function updateCar(id, car) {
 
 // Удалить автомобиль
 export async function deleteCar(id) {
-    const response = await fetch(
+    const response = await authFetch(
         `${CAR_API_URL}/${id}`,
         {
             method: "DELETE"
@@ -246,7 +281,7 @@ export async function deleteCar(id) {
 }
 
 export async function getFreeCars() {
-    const response = await fetch(`${CAR_API_URL}/free`);
+    const response = await authFetch(`${CAR_API_URL}/free`);
 
     await checkResponse(
         response,
@@ -262,7 +297,7 @@ export async function getFreeCars() {
 
 // Получить все координаты
 export async function getCoordinates() {
-    const response = await fetch(
+    const response = await authFetch(
         COORDINATES_API_URL
     );
 
@@ -277,7 +312,7 @@ export async function getCoordinates() {
 
 // Получить координаты по ID
 export async function getCoordinate(id) {
-    const response = await fetch(
+    const response = await authFetch(
         `${COORDINATES_API_URL}/${id}`
     );
 
@@ -292,7 +327,7 @@ export async function getCoordinate(id) {
 
 // Создать координаты
 export async function createCoordinates(coordinates) {
-    const response = await fetch(
+    const response = await authFetch(
         COORDINATES_API_URL,
         {
             method: "POST",
@@ -316,7 +351,7 @@ export async function createCoordinates(coordinates) {
 
 // Обновить координаты
 export async function updateCoordinates(id, coordinates) {
-    const response = await fetch(
+    const response = await authFetch(
         `${COORDINATES_API_URL}/${id}`,
         {
             method: "PUT",
@@ -340,7 +375,7 @@ export async function updateCoordinates(id, coordinates) {
 
 // Удалить координаты
 export async function deleteCoordinates(id) {
-    const response = await fetch(
+    const response = await authFetch(
         `${COORDINATES_API_URL}/${id}`,
         {
             method: "DELETE"
@@ -357,7 +392,7 @@ export async function deleteCoordinates(id) {
 
 // 1. Группировка по soundtrackName
 export async function groupBySoundtrack() {
-    const response = await fetch(
+    const response = await authFetch(
         `${SPECIAL_API_URL}/group-by-soundtrack`
     );
 
@@ -372,7 +407,7 @@ export async function groupBySoundtrack() {
 
 // 2. Найти людей, имя которых содержит подстроку
 export async function searchByName(substring) {
-    const response = await fetch(
+    const response = await authFetch(
         `${SPECIAL_API_URL}/search-by-name?substring=${encodeURIComponent(substring)}`
     );
 
@@ -387,7 +422,7 @@ export async function searchByName(substring) {
 
 // 3. Получить уникальные minutesOfWaiting
 export async function getUniqueWaiting() {
-    const response = await fetch(
+    const response = await authFetch(
         `${SPECIAL_API_URL}/unique-waiting`
     );
 
@@ -402,7 +437,7 @@ export async function getUniqueWaiting() {
 
 // 4. Удалить всех людей без зубочистки
 export async function deleteWithoutToothpick() {
-    const response = await fetch(
+    const response = await authFetch(
         `${SPECIAL_API_URL}/delete-without-toothpick`,
         {
             method: "POST"
@@ -418,7 +453,7 @@ export async function deleteWithoutToothpick() {
 
 // 5. Установить всем людям максимально грустное настроение
 export async function makeEveryoneSad() {
-    const response = await fetch(
+    const response = await authFetch(
         `${SPECIAL_API_URL}/set-sadness`,
         {
             method: "POST"
@@ -432,7 +467,7 @@ export async function makeEveryoneSad() {
 }
 
 export async function getAvailableCars(){
-    const response = await fetch(
+    const response = await authFetch(
         `${CAR_API_URL}/available`
     );
 
@@ -448,7 +483,7 @@ export async function getCarsPage(
     page = 0,
     size = 5
 ) {
-    const response = await fetch(
+    const response = await authFetch(
         `${CAR_API_URL}/page?page=${page}&size=${size}`
     );
 
@@ -459,4 +494,57 @@ export async function getCarsPage(
     }
 
     return response.json();
+}
+
+// ============================================================
+// AUTH
+// ============================================================
+
+export async function login(userLogin, password) {
+    const response = await fetch(
+        `${AUTH_API_URL}/login`,
+        {
+            method: "POST",
+
+            headers: {
+                "Content-Type": "application/json"
+            },
+
+            body: JSON.stringify({
+                login: userLogin,
+                password
+            })
+        }
+    );
+
+    await checkResponse(
+        response,
+        "Неверный логин или пароль"
+    );
+
+    return response.json();
+}
+
+
+export async function register(userLogin, password) {
+    const response = await fetch(
+        `${AUTH_API_URL}/register`,
+        {
+            method: "POST",
+
+            headers: {
+                "Content-Type": "application/json"
+            },
+
+            body: JSON.stringify({
+                login: userLogin,
+                password
+            })
+        }
+    );
+
+    await checkResponse(
+        response,
+        "Не удалось зарегистрироваться"
+    );
 }

@@ -7,24 +7,26 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import ru.stud.dto.AuthResponse;
 import ru.stud.dto.UserForm;
 import ru.stud.model.User;
 import ru.stud.service.UserService;
+import ru.stud.tokens.JwtService;
 
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
 
     private final UserService userService;
+    private final JwtService jwtService;
 
-    public AuthController(UserService userService) {
+    public AuthController(UserService userService,JwtService jwtService) {
         this.userService = userService;
+        this.jwtService=jwtService;
     }
 
     @PostMapping("/register")
-    public ResponseEntity<Void> register(
-            @Valid @RequestBody UserForm form
-    ) {
+    public ResponseEntity<Void> register(@Valid @RequestBody UserForm form) {
         userService.createNewUser(form);
 
         return ResponseEntity.status(HttpStatus.CREATED).build();
@@ -34,9 +36,10 @@ public class AuthController {
     public ResponseEntity<?> login(@Valid @RequestBody UserForm form) {
         UserForm user = userService.signIn(form.getLogin(), form.getPassword());
 
-        //добавим создание JWT
-        throw new UnsupportedOperationException(
-                "Генерация JWT ещё не реализована"
-        );
+        String token = jwtService.generateToken(user);
+
+        AuthResponse response = new AuthResponse(token, user.getId(), user.getLogin(), user.getRole());
+
+        return ResponseEntity.ok(response);
     }
 }
