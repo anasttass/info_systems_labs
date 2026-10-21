@@ -20,7 +20,8 @@ public class WebSocketConfig implements WebSocketConfigurer {
     public void registerWebSocketHandlers(
             WebSocketHandlerRegistry registry
     ) {
-        registry.addHandler(handler, "/ws/humanbeings")
-                .setAllowedOrigins("*");
+        registry
+                .addHandler(handler, "/ws/humanbeings")
+                .setAllowedOrigins("http://localhost:8080");
     }
 }

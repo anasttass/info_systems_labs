@@ -1,8 +1,5 @@
 import { getToken, clearAuth } from "./Auth";
-
-const CONTEXT_PATH = "/humanbeing";
-
-const API_URL = `${window.location.origin}${CONTEXT_PATH}`;
+const API_URL = window.location.origin;
 
 const HUMAN_API_URL = `${API_URL}/humanbeings`;
 const CAR_API_URL = `${API_URL}/cars`;
@@ -63,7 +60,7 @@ async function authFetch(url, options = {}) {
 
         clearAuth();
 
-        window.location.href = `${CONTEXT_PATH}/`;
+        window.location.href = "/login";
     }
 
     return response;
@@ -526,19 +523,24 @@ export async function login(userLogin, password) {
 }
 
 
-export async function register(userLogin, password) {
+export async function register(
+    userLogin,
+    password,
+    role = "GENERAL",
+    adminCode = null
+) {
     const response = await fetch(
         `${AUTH_API_URL}/register`,
         {
             method: "POST",
-
             headers: {
                 "Content-Type": "application/json"
             },
-
             body: JSON.stringify({
                 login: userLogin,
-                password
+                password,
+                role,
+                adminCode
             })
         }
     );
@@ -547,4 +549,23 @@ export async function register(userLogin, password) {
         response,
         "Не удалось зарегистрироваться"
     );
+}
+
+
+export async function uploadImport(file) {
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const response = await authFetch(
+        `${API_URL}/imports`,
+        {
+            method: "POST",
+            body: formData
+        }
+    );
+
+    await checkResponse(response, "Ошибка импорта");
+
+    const text = await response.text();
+    return text ? JSON.parse(text) : {};
 }

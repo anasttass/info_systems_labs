@@ -1,11 +1,36 @@
+
 import HumanRow from "./HumanRow";
 
-function HumanTable({ humans = [], onDataChanged }) {
+function HumanTable({
+                        humans = [],
+                        currentUser,
+                        onDataChanged
+                    }) {
+
+    function canModify(human) {
+        if (!currentUser) {
+            return false;
+        }
+
+        // Администратор может менять любые объекты
+        if (currentUser.role === "ADMIN") {
+            return true;
+        }
+
+        // Обычный пользователь — только свои
+        return (
+            human.ownerId != null &&
+            currentUser.id != null &&
+            Number(human.ownerId) === Number(currentUser.id)
+        );
+    }
+
     return (
         <table>
             <thead>
             <tr>
                 <th>ID</th>
+                <th>Owner ID</th>
                 <th>Name</th>
                 <th>Coordinates</th>
                 <th>Creation Date</th>
@@ -24,7 +49,7 @@ function HumanTable({ humans = [], onDataChanged }) {
             <tbody>
             {humans.length === 0 ? (
                 <tr>
-                    <td colSpan="13">
+                    <td colSpan={14}>
                         Нет данных
                     </td>
                 </tr>
@@ -33,6 +58,7 @@ function HumanTable({ humans = [], onDataChanged }) {
                     <HumanRow
                         key={human.id}
                         human={human}
+                        canModify={canModify(human)}
                         onDeleted={onDataChanged}
                     />
                 ))

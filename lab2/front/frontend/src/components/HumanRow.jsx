@@ -1,14 +1,23 @@
+
 import { useNavigate } from "react-router-dom";
 import { deleteHuman } from "../web-requests/Requester";
 
-function HumanRow({ human, onDeleted }) {
+function HumanRow({ human, canModify = false, onDeleted }) {
     const navigate = useNavigate();
 
     function handleEdit() {
+        if (!canModify) {
+            return;
+        }
+
         navigate(`/humans/${human.id}/edit`);
     }
 
     async function handleDelete() {
+        if (!canModify) {
+            return;
+        }
+
         const confirmed = window.confirm(
             `Удалить HumanBeing "${human.name}"?`
         );
@@ -20,7 +29,7 @@ function HumanRow({ human, onDeleted }) {
         try {
             await deleteHuman(human.id);
 
-            // Просим HumanPage перечитать таблицу
+            // Обновляем таблицу после удаления
             await onDeleted?.();
 
         } catch (error) {
@@ -31,6 +40,8 @@ function HumanRow({ human, onDeleted }) {
     return (
         <tr>
             <td>{human.id}</td>
+
+            <td>{human.ownerId ?? "—"}</td>
 
             <td>{human.name}</td>
 
@@ -56,9 +67,7 @@ function HumanRow({ human, onDeleted }) {
                     : "Нет"}
             </td>
 
-            <td>
-                {human.mood ?? "Нет"}
-            </td>
+            <td>{human.mood ?? "Нет"}</td>
 
             <td>{human.impactSpeed}</td>
 
@@ -69,19 +78,32 @@ function HumanRow({ human, onDeleted }) {
             <td>{human.weaponType}</td>
 
             <td>
-                <button
-                    type="button"
-                    onClick={handleEdit}
-                >
-                    Изменить
-                </button>
+                {canModify ? (
+                    <>
+                        <button
+                            type="button"
+                            onClick={handleEdit}
+                        >
+                            Изменить
+                        </button>
 
-                <button
-                    type="button"
-                    onClick={handleDelete}
-                >
-                    Удалить
-                </button>
+                        <button
+                            type="button"
+                            onClick={handleDelete}
+                        >
+                            Удалить
+                        </button>
+                    </>
+                ) : (
+                    <span
+                        style={{
+                            color: "#888",
+                            fontSize: "13px"
+                        }}
+                    >
+                        Нет прав
+                    </span>
+                )}
             </td>
         </tr>
     );

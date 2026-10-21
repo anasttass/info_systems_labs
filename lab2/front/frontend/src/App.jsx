@@ -10,10 +10,10 @@ import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
     return (
-        <BrowserRouter basename="/humanbeing">
+        <BrowserRouter>
             <Routes>
+                <Route path="/register" element={<LoginPage />} />
                 <Route path="/login" element={<LoginPage />} />
-
                 <Route path="/" element={<ProtectedRoute><HumanPage /></ProtectedRoute>} />
                 <Route path="/humans/create" element={<ProtectedRoute><HumanCreatePage /></ProtectedRoute>} />
                 <Route path="/humans/:id/edit" element={<ProtectedRoute><HumanEditPage /></ProtectedRoute>} />

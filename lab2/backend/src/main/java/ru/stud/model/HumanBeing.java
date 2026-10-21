@@ -76,6 +76,13 @@ public class HumanBeing {
     @Enumerated(EnumType.STRING)
     private WeaponType weaponType;
 
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "owner_id", nullable = false)
+    @Getter
+    @Setter
+    private User owner;
+
+
     // Автоматически проставляется дата создания сущности
     @PrePersist
     public void prePersist() {

@@ -28,5 +28,6 @@ public class HumanBeingResponse {
     private String soundtrackName;
     private Integer minutesOfWaiting;
     private WeaponType weaponType;
+    private Long ownerId;
 
 }

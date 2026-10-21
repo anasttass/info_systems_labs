@@ -14,5 +14,6 @@ public class UserForm {
     private String login;
     private String password;
     private UserRoles role;
+    private String adminCode;
 }
 

@@ -1,14 +1,64 @@
-import { Navigate } from "react-router-dom";
 
-import { isAuthenticated } from "../web-requests/Auth";
+import { useEffect, useState } from "react";
+import { Navigate, Outlet } from "react-router-dom";
 
-function ProtectedRoute({ children }) {
+import { getToken } from "../web-requests/Auth";
+import { checkServerSession } from "../web-requests/ServerSession";
 
-    if (!isAuthenticated()) {
+export default function ProtectedRoute({ children }) {
+    const [status, setStatus] = useState("checking");
+
+    useEffect(() => {
+        let active = true;
+
+        async function verify() {
+            if (!getToken()) {
+                if (active) {
+                    setStatus("unauthenticated");
+                }
+                return;
+            }
+
+            try {
+                const valid = await checkServerSession();
+
+                if (active) {
+                    setStatus(
+                        valid && getToken()
+                            ? "authenticated"
+                            : "unauthenticated"
+                    );
+                }
+            } catch (error) {
+                console.error(
+                    "Ошибка проверки сессии:",
+                    error
+                );
+
+                if (active) {
+                    setStatus("unauthenticated");
+                }
+            }
+        }
+
+        verify();
+
+        return () => {
+            active = false;
+        };
+    }, []);
+
+    if (status === "checking") {
+        return (
+            <div className="loading-message">
+                Проверка авторизации...
+            </div>
+        );
+    }
+
+    if (status === "unauthenticated") {
         return <Navigate to="/login" replace />;
     }
 
-    return children;
+    return children ?? <Outlet />;
 }
-
-export default ProtectedRoute;

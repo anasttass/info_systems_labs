@@ -1,41 +1,38 @@
 const TOKEN_KEY = "token";
 const USER_KEY = "user";
 
+export function saveAuth(token, user) {
+    sessionStorage.setItem(TOKEN_KEY, token);
 
-export function saveAuth(data) {
-
-    localStorage.setItem(TOKEN_KEY, data.token);
-
-    localStorage.setItem(
-        USER_KEY,
-        JSON.stringify({
-            id: data.user_id,
-            login: data.login,
-            role: data.role
-        })
-    );
+    if (user !== undefined) {
+        sessionStorage.setItem(
+            USER_KEY,
+            JSON.stringify(user)
+        );
+    }
 }
-
 
 export function getToken() {
-    return localStorage.getItem(TOKEN_KEY);
+    return sessionStorage.getItem(TOKEN_KEY);
 }
 
+export function getCurrentUser() {
+    const user = sessionStorage.getItem(USER_KEY);
 
-export function getUser() {
+    if (!user) return null;
 
-    const user = localStorage.getItem(USER_KEY);
-
-    return user ? JSON.parse(user) : null;
+    try {
+        return JSON.parse(user);
+    } catch {
+        return null;
+    }
 }
-
 
 export function isAuthenticated() {
-    return getToken() !== null;
+    return Boolean(getToken());
 }
 
-
 export function clearAuth() {
-    localStorage.removeItem(TOKEN_KEY);
-    localStorage.removeItem(USER_KEY);
+    sessionStorage.removeItem(TOKEN_KEY);
+    sessionStorage.removeItem(USER_KEY);
 }
