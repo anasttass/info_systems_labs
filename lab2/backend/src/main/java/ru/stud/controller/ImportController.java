@@ -21,7 +21,7 @@ public class ImportController {
         return service.importFile(file, jwt);
     }
 
-    @GetMapping
+    @GetMapping("/history")
     public List<ImportHistoryResponse> history(@AuthenticationPrincipal Jwt jwt) {
         return service.history(jwt);
     }

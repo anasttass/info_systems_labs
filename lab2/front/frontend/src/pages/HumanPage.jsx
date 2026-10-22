@@ -299,7 +299,7 @@ function HumanPage() {
                         ref={importInputRef}
                         type="file"
                         accept=".json,application/json"
-                        style={{ display: "none" }}
+                        style={{display: "none"}}
                         onChange={handleImport}
                         disabled={importing}
                         aria-label="Выбрать JSON для импорта"
@@ -314,6 +314,14 @@ function HumanPage() {
                         {importing
                             ? "Импортирование..."
                             : "Импортировать из JSON"}
+                    </button>
+
+                    <button
+                        type="button"
+                        className="secondary-button"
+                        onClick={() => navigate("/imports/history")}
+                    >
+                        История импорта
                     </button>
 
                     {/* АВТОМОБИЛИ */}

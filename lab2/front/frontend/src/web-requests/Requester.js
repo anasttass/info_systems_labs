@@ -569,3 +569,18 @@ export async function uploadImport(file) {
     const text = await response.text();
     return text ? JSON.parse(text) : {};
 }
+
+
+export async function getImportHistory() {
+    const response = await authFetch(
+        `${API_URL}/imports/history`
+    );
+
+    await checkResponse(
+        response,
+        "Не удалось загрузить историю импорта"
+    );
+
+    return response.json();
+}
+

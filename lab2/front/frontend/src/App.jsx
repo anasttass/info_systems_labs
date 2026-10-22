@@ -7,6 +7,7 @@ import CarsPage from "./pages/CarsPage";
 import LoginPage from "./pages/LoginPage";
 
 import ProtectedRoute from "./components/ProtectedRoute";
+import ImportHistoryPage from "./pages/ImportHistoryPage";
 
 function App() {
     return (
@@ -18,6 +19,14 @@ function App() {
                 <Route path="/humans/create" element={<ProtectedRoute><HumanCreatePage /></ProtectedRoute>} />
                 <Route path="/humans/:id/edit" element={<ProtectedRoute><HumanEditPage /></ProtectedRoute>} />
                 <Route path="/cars-page" element={<ProtectedRoute><CarsPage /></ProtectedRoute>} />
+                <Route
+                    path="/imports/history"
+                    element={
+                        <ProtectedRoute>
+                            <ImportHistoryPage />
+                        </ProtectedRoute>
+                    }
+                />
             </Routes>
         </BrowserRouter>
     );
