@@ -1,0 +1,51 @@
+[
+  {
+    "name": "John",
+    "coordinates": {
+      "x": 12.5,
+      "y": 100.0
+    },
+    "realHero": true,
+    "hasToothpick": false,
+    "impactSpeed": 150.5,
+    "soundtrackName": "Rock music",
+    "minutesOfWaiting": 10,
+    "weaponType": "AXE",
+    "mood": "SADNESS",
+    "car": {
+      "cool": true
+    }
+  },
+  {
+    "name": "Alice",
+    "coordinates": {
+      "x": -25.0,
+      "y": 500.0
+    },
+    "realHero": false,
+    "hasToothpick": true,
+    "impactSpeed": 200.0,
+    "soundtrackName": "Jazz",
+    "minutesOfWaiting": 5,
+    "weaponType": "SHOTGUN",
+    "mood": "SADNESS",
+    "car": {
+      "cool": false
+    }
+  },
+  {
+    "name": "Bob",
+    "coordinates": {
+      "x": 0.0,
+      "y": 781.0
+    },
+    "realHero": true,
+    "hasToothpick": false,
+    "impactSpeed": 357.0,
+    "soundtrackName": "Classic",
+    "minutesOfWaiting": 0,
+    "weaponType": "SHOTGUN",
+    "mood": "SADNESS",
+    "car": null
+  }
+]

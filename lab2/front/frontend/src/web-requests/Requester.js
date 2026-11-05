@@ -547,7 +547,7 @@ export async function register(
 
     await checkResponse(
         response,
-        "Не удалось зарегистрироваться"
+        "Не удалось зарегистрироваться. Попробуйте другой логин"
     );
 }
 

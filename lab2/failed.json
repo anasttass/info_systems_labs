@@ -1,0 +1,49 @@
+[
+  {
+    "name": "First",
+    "coordinates": {
+      "x": 10.0,
+      "y": 100.0
+    },
+    "realHero": true,
+    "hasToothpick": false,
+    "impactSpeed": 100.0,
+    "soundtrackName": "Music 1",
+    "minutesOfWaiting": 5,
+    "weaponType": "AXE",
+    "mood": "SADNESS",
+    "car": {
+      "cool": true
+    }
+  },
+  {
+    "name": "Second",
+    "coordinates": {
+      "x": 20.0,
+      "y": 200.0
+    },
+    "realHero": false,
+    "hasToothpick": true,
+    "impactSpeed": 200.0,
+    "soundtrackName": "Music 2",
+    "minutesOfWaiting": 10,
+    "weaponType": "AXE",
+    "mood": "RAGE",
+    "car": null
+  },
+  {
+    "name": "Invalid",
+    "coordinates": {
+      "x": 30.0,
+      "y": 300.0
+    },
+    "realHero": true,
+    "hasToothpick": false,
+    "impactSpeed": 500.0,
+    "soundtrackName": "Music 3",
+    "minutesOfWaiting": 15,
+    "weaponType": "SHOTGUN",
+    "mood": "RAGE",
+    "car": null
+  }
+]

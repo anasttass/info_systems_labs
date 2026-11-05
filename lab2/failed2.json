@@ -1,0 +1,17 @@
+[
+  {
+    "name": null,
+    "coordinates": {
+      "x": 10.0,
+      "y": 100.0
+    },
+    "realHero": true,
+    "hasToothpick": false,
+    "impactSpeed": 100.0,
+    "soundtrackName": null,
+    "minutesOfWaiting": 5,
+    "weaponType": null,
+    "mood": null,
+    "car": null
+  }
+]
