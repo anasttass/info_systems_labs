@@ -80,7 +80,9 @@ function HumanForm({
             initialHuman?.minutesOfWaiting ?? "",
 
         weaponType:
-            initialHuman?.weaponType ?? ""
+            initialHuman?.weaponType ?? "",
+
+        version: initialHuman?.version ?? null
     });
 
 
@@ -444,7 +446,9 @@ function HumanForm({
                     Number(form.minutesOfWaiting),
 
                 weaponType:
-                form.weaponType
+                form.weaponType,
+
+                version: form.version
             };
 
 

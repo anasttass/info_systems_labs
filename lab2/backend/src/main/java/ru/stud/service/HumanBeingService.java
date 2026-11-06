@@ -5,6 +5,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -218,6 +219,10 @@ public class HumanBeingService {
         // USER может изменять только свои объекты.
         // ADMIN может изменять любые.
         checkCanModify(hero);
+
+        if(form.getVersion()==null || !form.getVersion().equals(hero.getVersion())){
+            throw new ObjectOptimisticLockingFailureException(HumanBeing.class,id);
+        }
 
         fillHumanBeing(hero, form, id);
 

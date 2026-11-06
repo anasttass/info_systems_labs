@@ -9,6 +9,8 @@ public enum ErrorCode {
 
     COORDINATES_NOT_FOUND,
 
+    CONFLICT_IN_UPDATE,
+
     VALIDATION_ERROR,
     INTERNAL_ERROR
 

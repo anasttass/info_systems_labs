@@ -45,5 +45,7 @@ public class HumanBeingForm {
     @NotNull(message = "Выберите оружие")
     private WeaponType weaponType;
 
+    private Long version;
+
 
 }

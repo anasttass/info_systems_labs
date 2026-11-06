@@ -17,6 +17,7 @@ function HumanEditPage() {
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [error, setError] = useState(null);
+    const [conflict, setConflict] = useState(false);
 
     //загрузка объекта
 
@@ -58,15 +59,24 @@ function HumanEditPage() {
             navigate("/");
 
         } catch (error) {
-            console.error(error);
+        console.error(error);
 
+        if (error.status === 409) {
+            setConflict(true);
+            setError(
+                "Этот объект уже был изменён другим пользователем. " +
+                "Ваши изменения не сохранены. Обновите данные."
+            );
+        } else {
             setError(
                 error.message ||
                 `Не удалось обновить Human Being с ID ${id}`
             );
-        } finally {
-            setSaving(false);
         }
+
+    } finally {
+        setSaving(false);
+    }
     }
 
 

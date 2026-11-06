@@ -1,6 +1,6 @@
-login,password
-testuser1,password1
-testuser2,password2
-testuser3,password3
+login,password,file
+testuser1,password1,C:/Users/snsna/projects/education/uni/IS/info_systems_labs/lab2/success.json
+testuser2,password2,C:/Users/snsna/projects/education/uni/IS/info_systems_labs/lab2/failed.json
+testuser3,password3,C:/Users/snsna/projects/education/uni/IS/info_systems_labs/lab2/failed2.json
 testuser4,password4
 testuser5,password5

@@ -82,6 +82,11 @@ public class HumanBeing {
     @Setter
     private User owner;
 
+    @Version
+    @Getter
+    @Setter
+    private Long version;
+
 
     // Автоматически проставляется дата создания сущности
     @PrePersist

@@ -31,7 +31,10 @@ async function checkResponse(response, defaultMessage) {
         // Backend мог вернуть пустой ответ или не JSON.
     }
 
-    throw new Error(message);
+    const error = new Error(message);
+    error.status = response.status;
+
+    throw error;
 }
 
 // ============================================================

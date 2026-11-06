@@ -29,5 +29,6 @@ public class HumanBeingResponse {
     private Integer minutesOfWaiting;
     private WeaponType weaponType;
     private Long ownerId;
+    private Long version;
 
 }
