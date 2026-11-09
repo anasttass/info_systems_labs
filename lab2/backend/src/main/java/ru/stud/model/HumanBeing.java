@@ -3,8 +3,6 @@ package ru.stud.model;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.DecimalMax;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.Getter;
 
@@ -95,6 +93,7 @@ public class HumanBeing {
     }
 
 
+    // Preserve primitive boolean accessors for the nullable Boolean field.
     public boolean isRealHero() {
         return realHero;
     }
