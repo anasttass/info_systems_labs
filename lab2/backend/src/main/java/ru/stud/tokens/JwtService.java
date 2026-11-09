@@ -5,7 +5,7 @@ import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
 import org.springframework.security.oauth2.jwt.*;
 import org.springframework.stereotype.Service;
 
-import ru.stud.dto.UserForm;
+import ru.stud.dto.UserResponse;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -19,17 +19,17 @@ public class JwtService {
         this.jwtEncoder = jwtEncoder;
     }
 
-    public String generateToken(UserForm user) {
+    public String generateToken(UserResponse user) {
         Instant now = Instant.now();
 
         JwtClaimsSet claims = JwtClaimsSet.builder()
-                .subject(user.getId().toString())
+                .subject(user.id().toString())
                 .issuedAt(now)
                 .expiresAt(
                         now.plus(10, ChronoUnit.MINUTES)
                 )
-                .claim("login", user.getLogin())
-                .claim("role", user.getRole().name())
+                .claim("login", user.login())
+                .claim("role", user.role().name())
                 .build();
 
         JwsHeader header = JwsHeader

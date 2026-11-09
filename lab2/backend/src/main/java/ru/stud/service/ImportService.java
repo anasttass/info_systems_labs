@@ -56,11 +56,11 @@ public class ImportService {
             }
             int count = transaction.importAll(items, user);
             record.setStatus(RecordStatus.SUCCEED);
-            record.setNumber_of_entities(count);
+            record.setNumberOfEntities(count);
             return response(records.save(record));
         } catch (Exception ex) {
             record.setStatus(RecordStatus.FAILED);
-            record.setNumber_of_entities(null);
+            record.setNumberOfEntities(null);
             records.save(record);
             throw new ImportFailedException("Импорт #" + record.getId() + " отклонён: " + ex.getMessage());
         }
@@ -80,7 +80,7 @@ public class ImportService {
     }
 
     private ImportHistoryResponse response(LoadingRecord r) {
-        return new ImportHistoryResponse(r.getId(), r.getStatus(), r.getCreator().getLogin(), r.getNumber_of_entities());
+        return new ImportHistoryResponse(r.getId(), r.getStatus(), r.getCreator().getLogin(), r.getNumberOfEntities());
     }
 
     public static class ImportFailedException extends RuntimeException {

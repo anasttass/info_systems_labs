@@ -9,9 +9,28 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import ru.stud.dto.ErrorMessage;
 
 import java.util.Map;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<Map<String, String>> handleValidation() {
+        return ResponseEntity.badRequest().body(Map.of(
+                "error_code", "VALIDATION_ERROR",
+                "message", "Проверьте обязательные поля и ограничения запроса"
+        ));
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<Map<String, String>> handleUnreadableRequest() {
+        return ResponseEntity.badRequest().body(Map.of(
+                "error_code", "VALIDATION_ERROR",
+                "message", "Некорректный формат запроса"
+        ));
+    }
+
 
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ErrorMessage> handleNotFound(ResourceNotFoundException e) {

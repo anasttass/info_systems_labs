@@ -13,13 +13,22 @@ import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
-import java.util.Base64;
 
 @Configuration
 public class JwtConfig {
 
 
-    private String secret = "long-and-difficult-secret-code-for-security"; //СКРЫТЬ В ОКРУЖЕНИЕ
+    private final String secret;
+
+    public JwtConfig(@Value("${app.jwt.secret}") String secret) {
+        if (secret.isBlank() ||
+                secret.getBytes(StandardCharsets.UTF_8).length < 32) {
+            throw new IllegalArgumentException(
+                    "JWT_SECRET must contain at least 32 UTF-8 bytes"
+            );
+        }
+        this.secret = secret;
+    }
 
     @Bean
     public SecretKey jwtSecretKey(){
