@@ -7,7 +7,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import ru.stud.dto.UserForm;
+import ru.stud.dto.RegisterRequest;
+import ru.stud.dto.UserResponse;
 import ru.stud.model.User;
 import ru.stud.model.UserRoles;
 import ru.stud.repository.UserRepository;
@@ -35,15 +36,15 @@ public class UserService {
     }
 
     @Transactional
-    public void createNewUser(UserForm userForm) {
+    public void createNewUser(RegisterRequest userForm) {
 
-        if (userRepository.existsByLogin(userForm.getLogin())) {
+        if (userRepository.existsByLogin(userForm.login())) {
             throw new IllegalArgumentException(
                     "Пользователь с таким логином уже существует"
             );
         }
 
-        UserRoles requestedRole = userForm.getRole();
+        UserRoles requestedRole = userForm.role();
 
         if (requestedRole == null) {
             requestedRole = UserRoles.GENERAL;
@@ -56,12 +57,12 @@ public class UserService {
                 );
             }
 
-            if (userForm.getAdminCode() == null ||
+            if (userForm.adminCode() == null ||
                     !java.security.MessageDigest.isEqual(
                             adminRegistrationCode.getBytes(
                                     java.nio.charset.StandardCharsets.UTF_8
                             ),
-                            userForm.getAdminCode().getBytes(
+                            userForm.adminCode().getBytes(
                                     java.nio.charset.StandardCharsets.UTF_8
                             )
                     )) {
@@ -78,7 +79,7 @@ public class UserService {
         User user = userMapper.toEntity(userForm);
 
         user.setPassword(
-                passwordEncoder.encode(userForm.getPassword())
+                passwordEncoder.encode(userForm.password())
         );
 
         user.setRole(requestedRole);
@@ -87,7 +88,7 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public UserForm signIn(String login, String password) {
+    public UserResponse signIn(String login, String password) {
 
         User user = userRepository.findByLogin(login)
                 .orElseThrow(() ->
@@ -105,7 +106,7 @@ public class UserService {
             );
         }
 
-        return userMapper.toForm(user);
+        return userMapper.toResponse(user);
     }
 
     @Transactional(readOnly = true)
@@ -114,7 +115,7 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public UserForm getUserById(Long id) {
+    public UserResponse getUserById(Long id) {
 
         User user = userRepository.findById(id)
                 .orElseThrow(() ->
@@ -123,6 +124,6 @@ public class UserService {
                         )
                 );
 
-        return userMapper.toForm(user);
+        return userMapper.toResponse(user);
     }
 }

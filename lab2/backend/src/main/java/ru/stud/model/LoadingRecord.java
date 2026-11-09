@@ -23,6 +23,6 @@ public class LoadingRecord {
     @Enumerated(EnumType.STRING)
     private RecordStatus status;
 
-    @Column
-    private Integer number_of_entities;
+    @Column(name = "number_of_entities")
+    private Integer numberOfEntities;
 }

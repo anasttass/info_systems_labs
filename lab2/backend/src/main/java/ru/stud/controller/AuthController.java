@@ -6,7 +6,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import ru.stud.dto.AuthResponse;
-import ru.stud.dto.UserForm;
+import ru.stud.dto.LoginRequest;
+import ru.stud.dto.RegisterRequest;
+import ru.stud.dto.UserResponse;
 import ru.stud.service.UserService;
 import ru.stud.tokens.JwtService;
 
@@ -27,7 +29,7 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<Void> register(
-            @Valid @RequestBody UserForm form
+            @Valid @RequestBody RegisterRequest form
     ) {
         userService.createNewUser(form);
 
@@ -38,20 +40,20 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(
-            @Valid @RequestBody UserForm form
+            @Valid @RequestBody LoginRequest form
     ) {
-        UserForm user = userService.signIn(
-                form.getLogin(),
-                form.getPassword()
+        UserResponse user = userService.signIn(
+                form.login(),
+                form.password()
         );
 
         String token = jwtService.generateToken(user);
 
         AuthResponse response = new AuthResponse(
                 token,
-                user.getId(),
-                user.getLogin(),
-                user.getRole()
+                user.id(),
+                user.login(),
+                user.role()
         );
 
         return ResponseEntity.ok(response);

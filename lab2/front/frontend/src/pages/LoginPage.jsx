@@ -29,29 +29,10 @@ function LoginPage() {
     }
 
     function saveLoginResult(data) {
-        // Поддерживаем распространённые форматы ответа.
-        // Если backend возвращает другое поле,
-        // его нужно добавить здесь.
-        const token =
-            typeof data === "string"
-                ? data
-                : data?.token ??
-                data?.accessToken ??
-                data?.access_token;
+        const token = data?.token;
 
-        if (
-            typeof token !== "string" ||
-            !token.trim()
-        ) {
-            console.error(
-                "Неожиданный формат ответа /auth/login:",
-                data
-            );
-
-            throw new Error(
-                "Сервер не вернул JWT-токен. " +
-                "Проверь формат ответа /auth/login."
-            );
+        if (typeof token !== "string" || !token.trim()) {
+            throw new Error("Сервер не вернул JWT-токен");
         }
 
         saveAuth(token, {
@@ -60,7 +41,6 @@ function LoginPage() {
             role: data.role
         });
 
-        console.log("JWT сохранён в sessionStorage");
     }
 
     async function handleLogin(event) {
@@ -79,19 +59,8 @@ function LoginPage() {
 
             const data = await login(loginValue.trim(), password);
 
-            const token = data.token;
-
-            if (!token) {
-                throw new Error("Сервер не вернул JWT");
-            }
-
             await rememberServerSession();
-
-            saveAuth(token, {
-                id: data.user_id,
-                login: data.login,
-                role: data.role
-            });
+            saveLoginResult(data);
 
             navigate("/", { replace: true });
         } catch (err) {
@@ -126,19 +95,8 @@ function LoginPage() {
 
             const data = await login(loginValue.trim(), password);
 
-            const token = data.token;
-
-            if (!token) {
-                throw new Error("Сервер не вернул JWT");
-            }
-
             await rememberServerSession();
-
-            saveAuth(token, {
-                id: data.id,
-                login: data.login,
-                role: data.role
-            });
+            saveLoginResult(data);
 
             navigate("/", { replace: true });
         } catch (error) {

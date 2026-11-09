@@ -2,7 +2,6 @@ package ru.stud.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.Getter;
 
@@ -21,6 +20,7 @@ public class Car {
     private boolean cool;
 
 
+    // Preserve the boxed getCool() API and its validation annotation.
     public @NotNull Boolean getCool() {
         return cool;
     }
