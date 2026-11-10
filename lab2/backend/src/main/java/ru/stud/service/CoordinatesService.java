@@ -60,7 +60,7 @@ public class CoordinatesService {
     public CoordinatesForm create(CoordinatesForm form) {
 
         Coordinates coordinates = new Coordinates();
-        fillCoordinates(form);
+        fillCoordinates(coordinates, form);
 
         Coordinates savedCoordinates = repository.save(coordinates);
         eventPublisher.publishEvent(new HumanBeingChangedEvent());
@@ -72,7 +72,7 @@ public class CoordinatesService {
     public CoordinatesForm update(Long id, CoordinatesForm form) {
 
         Coordinates existingCoordinates = getEntityById(id);
-        fillCoordinates(form);
+        fillCoordinates(existingCoordinates, form);
         eventPublisher.publishEvent(new HumanBeingChangedEvent());
 
         return toForm(existingCoordinates);
@@ -90,8 +90,9 @@ public class CoordinatesService {
     }
 
 
-    private void fillCoordinates(CoordinatesForm form) {
-       coordinatesMapper.toEntity(form);
+    private void fillCoordinates(Coordinates coordinates, CoordinatesForm form) {
+        coordinates.setX(form.getX());
+        coordinates.setY(form.getY());
     }
 
 
