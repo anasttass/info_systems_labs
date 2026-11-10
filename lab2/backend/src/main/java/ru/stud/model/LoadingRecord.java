@@ -8,10 +8,12 @@ import lombok.Setter;
 @Setter
 
 @Entity
+@Table(name = "lab2_loading_record")
 public class LoadingRecord {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "lab2LoadingRecordGenerator")
+    @SequenceGenerator(name = "lab2LoadingRecordGenerator", sequenceName = "lab2_loading_record_seq", allocationSize = 50)
     private Long id;
 
 
